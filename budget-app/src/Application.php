@@ -49,16 +49,20 @@ class Application {
         $this->router->get('/transactions/export/xlsx', 'TransactionController@exportExcel');
         $this->router->post('/transactions/bulk-action', 'TransactionController@bulkAction');
 
-        // Transaction split routes
+        // Transaction split routes (UI)
+        $this->router->get('/transactions/:id/splits', 'TransactionController@splitsView');
+        // Transaction split routes (API)
         $this->router->post('/transactions/:id/split', 'TransactionController@createSplit');
         $this->router->put('/transactions/:id/split', 'TransactionController@updateSplit');
         $this->router->delete('/transactions/:id/split', 'TransactionController@deleteSplit');
         $this->router->get('/transactions/:id/split', 'TransactionController@getSplits');
 
-        // Recurring transaction routes
+        // Recurring transaction routes (UI)
+        $this->router->get('/transactions/recurring', 'TransactionController@recurringView');
+        // Recurring transaction routes (API)
         $this->router->get('/transactions/recurring/detect', 'TransactionController@detectRecurring');
         $this->router->post('/transactions/recurring/create', 'TransactionController@createRecurring');
-        $this->router->get('/transactions/recurring', 'TransactionController@getRecurring');
+        $this->router->get('/api/transactions/recurring', 'TransactionController@getRecurring');
         $this->router->post('/transactions/recurring/:id/update', 'TransactionController@updateRecurring');
         $this->router->post('/transactions/recurring/:id/delete', 'TransactionController@deleteRecurring');
 
@@ -79,10 +83,17 @@ class Application {
         $this->router->post('/budgets/alerts/:id/dismiss', 'BudgetController@dismissAlert');
         $this->router->get('/budgets/alerts/stats', 'BudgetController@getAlertStats');
         $this->router->post('/budgets/alerts/generate', 'BudgetController@generateAlerts');
-        // Budget template routes
-        $this->router->get('/budgets/templates', 'BudgetController@getTemplates');
+        // Budget template routes (UI)
+        $this->router->get('/budgets/templates', 'BudgetController@templatesView');
+        // Budget template routes (API)
+        $this->router->get('/api/budgets/templates', 'BudgetController@getTemplates');
         $this->router->post('/budgets/templates/:id/apply', 'BudgetController@applyTemplate');
         $this->router->get('/budgets/templates/:id/preview', 'BudgetController@previewTemplate');
+        $this->router->post('/budgets/templates', 'BudgetController@createTemplate');
+        $this->router->put('/budgets/templates/:id', 'BudgetController@updateTemplate');
+        $this->router->delete('/budgets/templates/:id', 'BudgetController@deleteTemplate');
+        $this->router->get('/budgets/templates/:id/export', 'BudgetController@exportTemplate');
+        $this->router->post('/budgets/templates/import', 'BudgetController@importTemplate');
         // Budget analytics routes
         $this->router->get('/budgets/analytics', 'BudgetController@getAnalytics');
         $this->router->get('/budgets/performance', 'BudgetController@getPerformance');
@@ -194,6 +205,22 @@ class Application {
         $this->router->get('/reset-password', 'AuthController@resetPasswordForm');
         $this->router->post('/reset-password', 'AuthController@resetPassword');
 
+        // Email verification routes
+        $this->router->get('/email-verification', 'EmailVerificationController@showVerificationPage');
+        $this->router->get('/verify-email', 'EmailVerificationController@verifyEmail');
+        $this->router->post('/api/email/resend', 'EmailVerificationController@resendVerificationEmail');
+        $this->router->get('/api/email/status', 'EmailVerificationController@getStatus');
+
+        // Two-Factor Authentication routes
+        $this->router->get('/settings/two-factor', 'TwoFactorController@settings');
+        $this->router->post('/api/2fa/setup', 'TwoFactorController@setup');
+        $this->router->post('/api/2fa/enable', 'TwoFactorController@enable');
+        $this->router->post('/api/2fa/disable', 'TwoFactorController@disable');
+        $this->router->post('/api/2fa/verify', 'TwoFactorController@verify');
+        $this->router->get('/api/2fa/devices', 'TwoFactorController@getTrustedDevices');
+        $this->router->post('/api/2fa/devices/revoke', 'TwoFactorController@revokeTrustedDevice');
+        $this->router->post('/api/2fa/backup-codes/regenerate', 'TwoFactorController@regenerateBackupCodes');
+
         // Settings routes
         $this->router->get('/settings', 'SettingsController@show');
         $this->router->get('/settings/profile', 'SettingsController@showProfile');
@@ -273,7 +300,7 @@ class Application {
 
     public function render(string $template, array $data = []): string {
         // Don't wrap auth pages with layout (they have their own HTML)
-        $authPages = ['auth/login', 'auth/register', 'auth/forgot-password', 'auth/reset-password', '404'];
+        $authPages = ['auth/login', 'auth/register', 'auth/forgot-password', 'auth/reset-password', 'auth/email-verification', 'auth/email-verified', '404'];
 
         // Add flash data before rendering view
         if (isset($_SESSION['flash'])) {

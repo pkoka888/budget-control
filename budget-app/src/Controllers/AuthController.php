@@ -105,11 +105,23 @@ class AuthController {
             'password_hash' => $hashedPassword,
             'currency' => 'CZK',
             'timezone' => 'Europe/Prague',
+            'email_verified' => 0,
             'created_at' => date('Y-m-d H:i:s')
         ]);
 
         $_SESSION['user_id'] = $userId;
-        header('Location: /');
+
+        // Send verification email
+        try {
+            $emailService = new \BudgetApp\Services\EmailVerificationService($this->db);
+            $emailService->sendVerificationEmail($userId);
+        } catch (\Exception $e) {
+            // Log error but don't fail registration
+            error_log("Failed to send verification email: " . $e->getMessage());
+        }
+
+        // Redirect to email verification page
+        header('Location: /email-verification');
         exit;
     }
 

@@ -1,0 +1,53 @@
+# Budget Control - Docker Ignore File
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Development files
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Node modules (if any)
+node_modules/
+
+# Composer cache
+vendor/
+
+# Database files (will be mounted as volume)
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+
+# Uploads (will be mounted as volume)
+uploads/
+
+# Storage (will be mounted as volume)
+storage/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore

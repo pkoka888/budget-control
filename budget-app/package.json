@@ -1,0 +1,17 @@
+{
+  "name": "budget-control",
+  "version": "1.0.0",
+  "description": "Budget Control Application with Tailwind CSS",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/assets/css/tailwind.css",
+    "build:css:watch": "tailwindcss -i ./src/input.css -o ./public/assets/css/tailwind.css --watch",
+    "build": "npm run build:css"
+  },
+  "keywords": ["budget", "tailwind"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.3.0",
+    "postcss": "^8.4.31"
+  }
+}

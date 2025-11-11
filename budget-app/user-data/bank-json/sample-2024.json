@@ -1,0 +1,122 @@
+[
+  {
+    "amount": {
+      "value": -250000,
+      "currency": "CZK"
+    },
+    "booking": "2024-01-15",
+    "referenceNumber": "TX001",
+    "variableSymbol": "1234567",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "NETTO - Praha Vinohrady",
+    "categories": ["Potraviny"],
+    "bookingTypeTranslation": "Platba kartou",
+    "note": "Nákup potravin"
+  },
+  {
+    "amount": {
+      "value": -1200,
+      "currency": "CZK"
+    },
+    "booking": "2024-01-16",
+    "referenceNumber": "TX002",
+    "variableSymbol": "1234568",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "ČEZ Prodej",
+    "categories": ["Domácnost"],
+    "bookingTypeTranslation": "Trvalý příkaz",
+    "note": "Zaplacení elektřiny"
+  },
+  {
+    "amount": {
+      "value": 45000,
+      "currency": "CZK"
+    },
+    "booking": "2024-01-20",
+    "referenceNumber": "TX003",
+    "variableSymbol": "1234569",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "Zaměstnavatel s.r.o.",
+    "categories": ["Příjmy"],
+    "bookingTypeTranslation": "Příjem",
+    "note": "Mzda za leden"
+  },
+  {
+    "amount": {
+      "value": -890,
+      "currency": "CZK"
+    },
+    "booking": "2024-01-22",
+    "referenceNumber": "TX004",
+    "variableSymbol": "1234570",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "Sportovní klub ATLETIKA",
+    "categories": ["Sport"],
+    "bookingTypeTranslation": "Platba kartou",
+    "note": "Měsíční členský příspěvek"
+  },
+  {
+    "amount": {
+      "value": -3400,
+      "currency": "CZK"
+    },
+    "booking": "2024-01-25",
+    "referenceNumber": "TX005",
+    "variableSymbol": "1234571",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "AEON Ubytovací služby",
+    "categories": ["Bydlení"],
+    "bookingTypeTranslation": "Trvalý příkaz",
+    "note": "Pronájem bytu"
+  },
+  {
+    "amount": {
+      "value": -1500,
+      "currency": "CZK"
+    },
+    "booking": "2024-02-03",
+    "referenceNumber": "TX006",
+    "variableSymbol": "1234572",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "O2 Czech Republic a.s.",
+    "categories": ["Domácnost"],
+    "bookingTypeTranslation": "Trvalý příkaz",
+    "note": "Mobilní služby"
+  },
+  {
+    "amount": {
+      "value": -580,
+      "currency": "CZK"
+    },
+    "booking": "2024-02-05",
+    "referenceNumber": "TX007",
+    "variableSymbol": "1234573",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "Knihkupectví Pohádka",
+    "categories": ["Vzdělání"],
+    "bookingTypeTranslation": "Platba kartou",
+    "note": "Nákup knih"
+  },
+  {
+    "amount": {
+      "value": -2100,
+      "currency": "CZK"
+    },
+    "booking": "2024-02-10",
+    "referenceNumber": "TX008",
+    "variableSymbol": "1234574",
+    "ownerAccountNumber": "123456789/0100",
+    "ownerAccountTitle": "Můj běžný účet",
+    "partnerName": "Czech Airlines",
+    "categories": ["Doprava"],
+    "bookingTypeTranslation": "Platba kartou",
+    "note": "Letenka Praha - Londýn"
+  }
+]

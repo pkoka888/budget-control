@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Chart Fix</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <h1>Testing Chart Fix</h1>
+    <canvas id="testChart" width="400" height="200"></canvas>
+    <button onclick="testChartUpdate()">Test Chart Update</button>
+    <div id="result"></div>
+
+    <script>
+        // Create a test chart
+        const ctx = document.getElementById('testChart').getContext('2d');
+        const testChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['A', 'B', 'C'],
+                datasets: [{
+                    label: 'Test Data',
+                    data: [1, 2, 3]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Test our fixed function
+        function updateChartsForMobile() {
+            const isMobile = window.innerWidth < 768;
+            const result = document.getElementById('result');
+
+            // Update all charts to be more mobile-friendly
+            // Find all canvas elements with chart IDs
+            const chartCanvasIds = ['testChart'];
+            chartCanvasIds.forEach(canvasId => {
+                const canvas = document.getElementById(canvasId);
+                if (canvas) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        result.innerHTML += `Found chart on canvas ${canvasId}<br>`;
+                        if (isMobile) {
+                            chart.options.plugins.legend.position = 'bottom';
+                            result.innerHTML += `Set legend to bottom for mobile<br>`;
+                        } else {
+                            chart.options.plugins.legend.position = 'top';
+                            result.innerHTML += `Set legend to top for desktop<br>`;
+                        }
+                        chart.update();
+                        result.innerHTML += `Chart updated successfully<br>`;
+                    } else {
+                        result.innerHTML += `No chart found on canvas ${canvasId}<br>`;
+                    }
+                } else {
+                    result.innerHTML += `Canvas ${canvasId} not found<br>`;
+                }
+            });
+        }
+
+        function testChartUpdate() {
+            document.getElementById('result').innerHTML = 'Testing chart update...<br>';
+            updateChartsForMobile();
+            document.getElementById('result').innerHTML += 'Test completed!<br>';
+        }
+
+        // Initial test
+        window.addEventListener('load', () => {
+            document.getElementById('result').innerHTML = 'Page loaded. Chart created.<br>';
+        });
+    </script>
+</body>
+</html>

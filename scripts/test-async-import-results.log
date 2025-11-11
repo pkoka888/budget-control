@@ -1,0 +1,11 @@
+🎯 Async Bank Import Workflow Test
+
+📝 Step 1: Registering test user...
+✅ Registered
+
+🔐 Step 2: Logging in...
+
+❌ Error: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[name="email"]') to be visible[22m
+

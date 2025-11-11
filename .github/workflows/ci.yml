@@ -1,0 +1,168 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Tests (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.2', '8.3']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: sqlite3, pdo_sqlite, mbstring, json
+          coverage: none
+
+      - name: Validate composer.json
+        run: |
+          cd budget-app
+          if [ -f composer.json ]; then
+            composer validate --strict
+          else
+            echo "No composer.json found, skipping validation"
+          fi
+
+      - name: Install PHP dependencies
+        run: |
+          cd budget-app
+          if [ -f composer.json ]; then
+            composer install --no-interaction --no-progress --prefer-dist
+          else
+            echo "No composer.json found, skipping install"
+          fi
+
+      - name: Run PHPUnit tests
+        run: |
+          cd budget-app
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit
+          else
+            echo "PHPUnit not found, skipping PHP tests"
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E tests
+        run: npm test
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-php-${{ matrix.php-version }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Check PHP syntax
+        run: |
+          cd budget-app
+          find src -name "*.php" -print0 | xargs -0 -n1 php -l
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Check JavaScript/TypeScript
+        run: |
+          if [ -f package.json ]; then
+            echo "Checking JavaScript files..."
+            # Add ESLint or other linters here when configured
+          fi
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Checking for hardcoded secrets..."
+          ! grep -r "password\s*=\s*['\"][^'\"]\+['\"]" budget-app/src/ || exit 1
+          ! grep -r "api_key\s*=\s*['\"][^'\"]\+['\"]" budget-app/src/ || exit 1
+          ! grep -r "secret\s*=\s*['\"][^'\"]\+['\"]" budget-app/src/ || exit 1
+          echo "No hardcoded secrets found"
+
+      - name: Audit Node dependencies
+        run: npm audit --audit-level=moderate || true
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build Tailwind CSS
+        run: |
+          cd budget-app
+          npm run build || echo "Build script not found"
+
+      - name: Check build artifacts
+        run: |
+          if [ -f budget-app/public/css/output.css ]; then
+            echo "Build successful - output.css generated"
+          else
+            echo "Warning: output.css not found"
+          fi

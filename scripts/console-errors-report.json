@@ -1,0 +1,253 @@
+{
+  "timestamp": "2025-11-09T23:40:03.988Z",
+  "totalPages": 12,
+  "pages": [
+    {
+      "page": "Login",
+      "url": "/login",
+      "authenticated": false,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Registration",
+      "url": "/register",
+      "authenticated": false,
+      "pageInfo": {
+        "title": "Registrace - Budget Control",
+        "url": "http://localhost:8080/register",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Dashboard",
+      "url": "/",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Accounts",
+      "url": "/accounts",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Transactions",
+      "url": "/transactions",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Categories",
+      "url": "/categories",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Budgets",
+      "url": "/budgets",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "",
+        "url": "http://localhost:8080/budgets",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Investments",
+      "url": "/investments",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Goals",
+      "url": "/goals",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Reports",
+      "url": "/reports/monthly",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Tips",
+      "url": "/tips",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "Přihlášení - Budget Control",
+        "url": "http://localhost:8080/login",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    },
+    {
+      "page": "Settings",
+      "url": "/settings",
+      "authenticated": true,
+      "pageInfo": {
+        "title": "",
+        "url": "http://localhost:8080/settings",
+        "readyState": "complete"
+      },
+      "errors": null,
+      "warnings": null,
+      "logs": null,
+      "summary": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "logCount": 0,
+        "hasErrors": false,
+        "isClean": true
+      }
+    }
+  ],
+  "summary": {
+    "totalErrors": 0,
+    "totalWarnings": 0,
+    "totalLogs": 0,
+    "affectedPages": 0,
+    "cleanPages": 12
+  }
+}

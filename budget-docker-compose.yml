@@ -1,0 +1,58 @@
+# Budget Control - Docker Compose for Local Development
+version: '3.8'
+
+services:
+  budget-app:
+    build:
+      context: ./budget-app
+      dockerfile: Dockerfile
+    container_name: budget-control-app
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount the database directory for persistence
+      - ./budget-app/database:/var/www/html/database
+      # Mount uploads directory for CSV imports
+      - ./budget-app/uploads:/var/www/html/uploads
+      # Mount storage for logs and cache
+      - ./budget-app/storage:/var/www/html/storage
+      # Mount user-data for bank JSON imports
+      - ./budget-app/user-data:/var/www/html/user-data
+    environment:
+      # Application settings
+      - APP_NAME=Budget Control
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8080
+      - TIMEZONE=Europe/Prague
+
+      # Database (SQLite - file-based, no separate DB service needed)
+      - DATABASE_PATH=/var/www/html/database/budget.db
+
+      # Currency
+      - CURRENCY=CZK
+
+      # CSV Import Settings
+      - CSV_MAX_SIZE=10485760
+      - CSV_UPLOAD_DIR=/var/www/html/uploads/csv
+
+      # Security
+      - SESSION_NAME=BUDGETAPP_SESSION
+      - SESSION_LIFETIME=3600
+
+      # Features
+      - ENABLE_AI_RECOMMENDATIONS=true
+      - ENABLE_CSV_IMPORT=true
+      - ENABLE_INVESTMENTS=true
+      - ENABLE_GOALS=true
+    restart: unless-stopped
+    networks:
+      - budget-net
+
+networks:
+  budget-net:
+    driver: bridge
+
+volumes:
+  budget-database:
+  budget-uploads:
+  budget-storage:

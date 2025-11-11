@@ -26,8 +26,8 @@
 
             <div class="card-body">
                 <?php if (!empty($error)): ?>
-                    <div class="alert alert-error animate-slide-in-down mb-6" role="alert">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="alert alert-error animate-slide-in-down mb-6" role="alert" aria-live="assertive" aria-atomic="true">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                         <?php echo htmlspecialchars($error); ?>
@@ -176,14 +176,27 @@
                 e.preventDefault();
                 confirmHelp.classList.remove('hidden');
                 confirmHelp.className = 'mt-1 text-sm text-red-600';
+                confirmHelp.setAttribute('role', 'alert');
+                confirmHelp.setAttribute('aria-live', 'assertive');
                 confirmHelp.textContent = '✗ Hesla se musí shodovat';
+                confirmInput.setAttribute('aria-invalid', 'true');
                 confirmInput.focus();
                 return false;
             }
 
             const button = this.querySelector('button[type="submit"]');
             button.disabled = true;
-            button.innerHTML = 'Nastavuji heslo...';
+            button.innerHTML = '<span aria-live="polite">Nastavuji heslo...</span>';
+            button.setAttribute('aria-busy', 'true');
+        });
+
+        // Focus management for error messages
+        window.addEventListener('DOMContentLoaded', function() {
+            const errorAlert = document.querySelector('.alert-error');
+            if (errorAlert) {
+                errorAlert.focus();
+                errorAlert.setAttribute('tabindex', '-1');
+            }
         });
     </script>
 </body>

@@ -1,0 +1,19 @@
+{
+    "name": "budget-app/budget-control",
+    "description": "Personal budget control application",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "tecnickcom/tcpdf": "^6.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "phpstan/phpstan": "^1.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "BudgetApp\\": "src/"
+        }
+    }
+}

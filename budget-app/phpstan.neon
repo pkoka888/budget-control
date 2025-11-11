@@ -1,0 +1,16 @@
+parameters:
+    level: 6
+    paths:
+        - src
+    excludePaths:
+        - tests
+        - vendor
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        # Ignore PDO-related errors for now (can be addressed later)
+        - '#Call to method [a-zA-Z]+\(\) on PDO#'
+        # Ignore session-related warnings
+        - '#Variable \$_SESSION#'
+        # Ignore undefined array key warnings for optional POST/GET params
+        - '#Offset .+ might not exist on array#'

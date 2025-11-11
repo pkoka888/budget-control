@@ -94,10 +94,26 @@ jobs:
         with:
           php-version: '8.2'
 
+      - name: Install PHP dependencies
+        run: |
+          cd budget-app
+          if [ -f composer.json ]; then
+            composer install --no-interaction --no-progress --prefer-dist
+          fi
+
       - name: Check PHP syntax
         run: |
           cd budget-app
           find src -name "*.php" -print0 | xargs -0 -n1 php -l
+
+      - name: Run PHPStan static analysis
+        run: |
+          cd budget-app
+          if [ -f vendor/bin/phpstan ]; then
+            vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+          else
+            echo "⚠️  PHPStan not found, skipping static analysis"
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

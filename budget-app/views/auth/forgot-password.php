@@ -24,8 +24,8 @@
 
             <div class="card-body">
                 <?php if (!empty($error)): ?>
-                    <div class="alert alert-error animate-slide-in-down mb-6" role="alert">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="alert alert-error animate-slide-in-down mb-6" role="alert" aria-live="assertive" aria-atomic="true">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                         <?php echo htmlspecialchars($error); ?>
@@ -33,8 +33,8 @@
                 <?php endif; ?>
 
                 <?php if (!empty($success)): ?>
-                    <div class="alert alert-success animate-slide-in-down mb-6" role="alert">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="alert alert-success animate-slide-in-down mb-6" role="alert" aria-live="polite" aria-atomic="true">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                         <?php echo htmlspecialchars($success); ?>
@@ -86,8 +86,33 @@
         // Add loading state to form submission
         document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
             const button = this.querySelector('button[type="submit"]');
+            const email = document.getElementById('email');
+
+            // Validate email format
+            if (!email.validity.valid) {
+                e.preventDefault();
+                email.focus();
+                email.setAttribute('aria-invalid', 'true');
+                return false;
+            }
+
             button.disabled = true;
-            button.innerHTML = 'Odesílání...';
+            button.innerHTML = '<span aria-live="polite">Odesílání...</span>';
+            button.setAttribute('aria-busy', 'true');
+        });
+
+        // Focus management for error messages
+        window.addEventListener('DOMContentLoaded', function() {
+            const errorAlert = document.querySelector('.alert-error');
+            const successAlert = document.querySelector('.alert-success');
+
+            if (errorAlert) {
+                errorAlert.focus();
+                errorAlert.setAttribute('tabindex', '-1');
+            } else if (successAlert) {
+                successAlert.focus();
+                successAlert.setAttribute('tabindex', '-1');
+            }
         });
     </script>
 </body>

@@ -1,0 +1,96 @@
+# Dependencies
+node_modules/
+budget-app/node_modules/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+budget-app/database/budget.db
+
+# User data and uploads
+budget-app/user-data/
+budget-app/uploads/
+budget-app/storage/
+
+# Test results and reports (optional - comment out if you want to keep)
+# test-results/
+# playwright-report/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+budget-app/.env.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+budget-app/logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Docker volumes (if not using named volumes)
+budget-app/database/
+
+# Build artifacts
+dist/
+build/
+budget-app/public/assets/css/
+budget-app/public/assets/js/
+
+# PHP Composer
+vendor/
+composer.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Research and documentation archives
+docs/archive/
+researches/findings/
+researches/implementation/
+researches/methodology/
+researches/phases/
+
+# Screenshots (optional - comment out if you want to keep)
+# screenshots/
+
+# Scripts (optional - comment out if you want to keep)
+# scripts/
+
+# Other project directories (uncomment if you want to ignore)
+# agents/
+# docs/
+# examples/
+# firefly-iii/
+# maybe/
+# researches/

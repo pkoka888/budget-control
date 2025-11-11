@@ -1,72 +1,106 @@
-# Personal Assistant Research Documentation
+# Budget Control Research Materials
 
-## Overview
-This research documents the development of an AI-powered personal assistant for Czech IT technicians, transforming traditional budget tracking into comprehensive life optimization.
+This branch contains comprehensive research materials, analyses, and findings related to the Budget Control project development.
 
-## Research Structure
+## 📁 Research Structure
 
-### 📁 methodology/
-- `github-analysis-methodology.md` - Original GitHub ecosystem analysis approach
-- `scenario-development-framework.md` - Framework for creating practical user scenarios
-- `validation-approach.md` - Research validation and testing methodologies
+### 🧠 [financial-tutor/](./financial-tutor/)
+Research and development materials for the LLM Financial Tutor feature.
+- `task-1-llm-financial-tutor/` - Complete research on LLM integration for financial guidance
+  - Model comparison matrices
+  - Implementation approaches
+  - User interaction patterns
 
-### 📁 phases/
-- `phase-1-github-ecosystem.md` - Initial 2,300+ repository analysis
-- `phase-2-implementation-testing.md` - Live application deployments and testing
-- `phase-3-scenario-expansion.md` - Extended practical scenario development
+### 🏦 [banking-api/](./banking-api/)
+Banking API integration research and analysis.
+- `czech-banking-api-research.md` - Comprehensive analysis of Czech banking APIs
+- Integration patterns and security considerations
 
-### 📁 scenarios/
-10 detailed practical scenarios demonstrating backward-engineering from user needs:
-- `emergency-fund-builder.md` - Crisis prevention and fund building
-- `career-transition-planning.md` - Income growth and skill development
-- `debt-optimization-strategy.md` - Intelligent debt management
-- `relocation-decision-support.md` - Life change planning
-- `family-expansion-planning.md` - Long-term family financial planning
-- `retirement-planning-it.md` - IT career retirement optimization
-- `investment-strategy-development.md` - Portfolio management for developers
-- `side-hustle-optimization.md` - Multiple income stream development
-- `tax-optimization-freelancers.md` - Tax planning for IT freelancers
-- `health-emergency-planning.md` - Risk mitigation and protection
+### 🎯 [scenarios/](./scenarios/)
+User scenario research and use case development.
+- Career transition planning
+- Debt optimization strategies
+- Emergency fund building
+- Family expansion planning
+- Health emergency planning
+- Investment strategy development
+- Relocation decision support
+- Retirement planning
+- Side hustle optimization
+- Tax optimization for freelancers
 
-### 📁 findings/
-- `market-gap-analysis.md` - Competitive landscape assessment
-- `competitive-landscape.md` - Existing solution limitations
-- `unique-value-proposition.md` - AI assistant differentiation
+### 🔬 [methodology/](./methodology/)
+Research methodologies and frameworks used in the project.
+- Backward engineering approaches
+- Comprehensive research frameworks
+- GitHub ecosystem analysis methodology
+- Research validation testing frameworks
+- Scenario development frameworks
+- Validation approaches
 
-### 📁 implementation/
-- `personal-assistant-plan.md` - Complete 4-month implementation roadmap
-- `validation-results.md` - Research validation outcomes
+## 🎯 Research Focus Areas
 
-## Key Research Insights
+### Primary Research Domains
+1. **Financial Technology Integration** - Banking APIs, payment systems
+2. **AI/ML Applications** - LLM integration, financial guidance systems
+3. **User Experience Research** - Scenario-based planning, behavioral finance
+4. **Czech Market Analysis** - Local banking systems, regulatory requirements
 
-### Market Gap Identified
-- **Existing apps**: Basic budgeting, transaction tracking, simple forecasting
-- **Missing features**: AI coaching, career integration, Czech market expertise, proactive automation
+### Research Methodologies
+- **Qualitative Analysis** - User scenario development, requirement gathering
+- **Quantitative Analysis** - Performance metrics, API response analysis
+- **Technical Research** - API documentation analysis, security assessments
+- **Market Research** - Competitive landscape analysis, gap identification
 
-### Backward-Engineering Approach
-- Started with user needs (Czech IT technician scenarios)
-- Developed features to address specific pain points
-- Created comprehensive life optimization vs. simple budget tracking
+## 📖 Key Findings
 
-### Quantitative Impact
-- **Financial savings**: 1.2M - 8.1M CZK per scenario
-- **Income growth**: 15-60% increases through career guidance
-- **Goal achievement**: 40-100% faster progress
-- **Risk reduction**: Comprehensive protection against uncertainties
+### Banking API Research
+- Comprehensive analysis of Czech banking API landscape
+- Security and compliance requirements identified
+- Integration patterns for transaction data import
 
-## Research Methodology
+### LLM Financial Tutor
+- Model comparison across multiple LLM providers
+- Prompt engineering techniques for financial guidance
+- User interaction patterns and conversation flows
 
-1. **Phase 1**: GitHub ecosystem analysis (2,300+ repos)
-2. **Phase 2**: Live implementation testing (successful deployments)
-3. **Phase 3**: Practical scenario development (10 real-world cases)
-4. **Validation**: User journey mapping and impact assessment
+### User Scenarios
+- 10 comprehensive financial planning scenarios developed
+- Real-world use cases covering major life events
+- Behavioral finance principles incorporated
 
-## Implementation Outcome
+## 🔄 Research Process
 
-The research led to a complete 4-month personal assistant implementation plan with:
-- **Month 1**: Data intake and context (JSON normalization, user profiling)
-- **Month 2**: AI insight engine (MCP adapter, LLM prompts, crisis mode)
-- **Month 3**: Smart coaching (goals, scenarios, career module, notifications)
-- **Month 4**: Automation and scaling (feedback, proactive actions, security)
+1. **Problem Identification** - Market gaps and user needs analysis
+2. **Literature Review** - Existing solutions and research review
+3. **Methodology Development** - Custom frameworks for financial tech research
+4. **Data Collection** - API documentation, user interviews, market analysis
+5. **Analysis & Synthesis** - Pattern identification, solution design
+6. **Validation** - Technical feasibility testing, user feedback
+7. **Implementation Planning** - Architecture design, development roadmap
 
-This research demonstrates how systematic backward-engineering from user needs creates superior solutions compared to feature accretion from existing products.
+## 📊 Research Impact
+
+- **Technical Architecture** - Informed API integration strategies
+- **Product Features** - LLM tutor and scenario planning features
+- **User Experience** - Scenario-based financial planning workflows
+- **Market Positioning** - Competitive advantages identified
+
+## 🔗 Related Branches
+
+- **`main`** - Core application implementation
+- **`docs`** - Documentation and guides
+- **`research`** - This branch with research materials
+
+## 📝 Contributing to Research
+
+- Add new research findings to appropriate category directories
+- Follow naming conventions: `topic-research.md`
+- Include methodology, findings, and recommendations
+- Update this README when adding new research areas
+
+---
+
+**Research Lead:** Budget Control Development Team
+**Last Updated:** November 2025
+**Research Framework:** Custom methodology for financial technology research

@@ -12,7 +12,26 @@ class OpportunitiesController extends BaseController {
     }
 
     /**
-     * Get opportunities dashboard
+     * Show opportunities list view (UI)
+     */
+    public function listView(array $params = []): void {
+        $userId = $this->getUserId();
+
+        try {
+            $dashboard = $this->opportunitiesService->getOpportunitiesDashboard($userId);
+
+            echo $this->app->render('opportunities/list', [
+                'dashboard' => $dashboard
+            ]);
+
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo $this->app->renderError($e);
+        }
+    }
+
+    /**
+     * Get opportunities dashboard (API)
      */
     public function dashboard(array $params = []): void {
         $userId = $this->getUserId();

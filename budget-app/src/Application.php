@@ -142,6 +142,35 @@ class Application {
         $this->router->post('/goals/milestones/:id/update', 'GoalsController@updateMilestone');
         $this->router->get('/goals/:id/projection', 'GoalsController@getProjection');
 
+        // Opportunities routes (UI)
+        $this->router->get('/opportunities', 'OpportunitiesController@listView');
+        // Opportunities routes (API)
+        $this->router->get('/api/opportunities/dashboard', 'OpportunitiesController@dashboard');
+        $this->router->get('/api/opportunities/learning', 'OpportunitiesController@learningPaths');
+        $this->router->get('/api/opportunities/jobs', 'OpportunitiesController@jobs');
+        $this->router->get('/api/opportunities/freelance', 'OpportunitiesController@freelance');
+        $this->router->get('/api/opportunities/events', 'OpportunitiesController@events');
+        $this->router->get('/api/opportunities/certifications', 'OpportunitiesController@certifications');
+        $this->router->get('/api/opportunities/insights', 'OpportunitiesController@marketInsights');
+        $this->router->post('/api/opportunities/track', 'OpportunitiesController@trackInteraction');
+        $this->router->get('/api/opportunities/recommendations', 'OpportunitiesController@recommendations');
+        $this->router->post('/api/opportunities/save', 'OpportunitiesController@saveOpportunity');
+        $this->router->get('/api/opportunities/saved', 'OpportunitiesController@savedOpportunities');
+        $this->router->delete('/api/opportunities/saved/:id', 'OpportunitiesController@removeSaved');
+
+        // Scenario Planning routes (UI)
+        $this->router->get('/scenario', 'ScenarioPlanningController@planningView');
+        // Scenario Planning routes (API)
+        $this->router->get('/api/scenario/generate', 'ScenarioPlanningController@generateScenarios');
+        $this->router->get('/api/scenario/goal/:goal_id', 'ScenarioPlanningController@generateGoalScenarios');
+        $this->router->get('/api/scenario/retirement', 'ScenarioPlanningController@generateRetirementScenarios');
+        $this->router->get('/api/scenario/compare', 'ScenarioPlanningController@compareScenarios');
+        $this->router->post('/api/scenario/save-as-goal', 'ScenarioPlanningController@saveScenarioAsGoal');
+        $this->router->get('/api/scenario/templates', 'ScenarioPlanningController@getScenarioTemplates');
+
+        // Automation Dashboard route (UI)
+        $this->router->get('/automation', 'AutomationController@dashboardView');
+
         // Tips/Education routes
         $this->router->get('/tips', 'TipsController@list');
         $this->router->get('/tips/:id', 'TipsController@show');

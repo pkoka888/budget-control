@@ -12,6 +12,55 @@ class ScenarioPlanningController extends BaseController {
     }
 
     /**
+     * Show scenario planning view (UI)
+     */
+    public function planningView(array $params = []): void {
+        $userId = $this->getUserId();
+
+        try {
+            // Load user's current financial data for scenario planning
+            $currentData = [
+                'monthly_income' => 0,
+                'monthly_expenses' => 0,
+                'current_savings' => 0
+            ];
+
+            // Get current month's summary
+            $firstDay = date('Y-m-01');
+            $lastDay = date('Y-m-t');
+
+            $transactions = $this->db->query(
+                "SELECT type, amount FROM transactions
+                 WHERE user_id = ? AND date BETWEEN ? AND ?",
+                [$userId, $firstDay, $lastDay]
+            );
+
+            foreach ($transactions as $transaction) {
+                if ($transaction['type'] === 'income') {
+                    $currentData['monthly_income'] += $transaction['amount'];
+                } else {
+                    $currentData['monthly_expenses'] += abs($transaction['amount']);
+                }
+            }
+
+            // Get current account balances
+            $accounts = $this->db->query(
+                "SELECT SUM(balance) as total FROM accounts WHERE user_id = ?",
+                [$userId]
+            );
+            $currentData['current_savings'] = $accounts[0]['total'] ?? 0;
+
+            echo $this->app->render('scenario/planning', [
+                'currentData' => $currentData
+            ]);
+
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo $this->app->renderError($e);
+        }
+    }
+
+    /**
      * Generate financial scenarios
      */
     public function generateScenarios(array $params = []): void {

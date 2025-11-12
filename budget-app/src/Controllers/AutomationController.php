@@ -14,13 +14,33 @@ class AutomationController extends BaseController {
     private SecurityService $securityService;
     private PerformanceService $performanceService;
 
-    public function __construct() {
-        parent::__construct();
+    public function __construct($app = null) {
+        parent::__construct($app);
         $this->automationService = new AutomationService($this->db);
         $this->jobMarketService = new JobMarketService($this->db);
         $this->czechBenefitsService = new CzechBenefitsService($this->db);
         $this->securityService = new SecurityService($this->db);
         $this->performanceService = new PerformanceService($this->db);
+    }
+
+    /**
+     * Show automation dashboard view (UI)
+     */
+    public function dashboardView(array $params = []): void {
+        $userId = $this->getUserId();
+
+        try {
+            // Get user's current automation rules
+            $actions = $this->automationService->getUserAutomatedActions($userId);
+
+            echo $this->app->render('automation/dashboard', [
+                'actions' => $actions
+            ]);
+
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo $this->app->renderError($e);
+        }
     }
 
     /**

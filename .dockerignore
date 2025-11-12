@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CONTRIBUTING.md
+CHANGELOG.md
+docs/
+
+# Tests
+tests/
+*.spec.js
+playwright.config.js
+.playwright/
+
+# Development files
+.env.example
+.editorconfig
+.vscode/
+.idea/
+
+# Dependencies (will be installed in container)
+vendor/
+node_modules/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.swp
+*~
+.*.swp
+
+# Database (will be created in container)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Uploads (mounted as volume)
+uploads/*
+user-data/*
+
+# IDE
+.phpstorm.meta.php
+_ide_helper.php

@@ -1,433 +1,259 @@
 <?php
-namespace BudgetApp\Services;
 
-use BudgetApp\Database;
+namespace App\Services;
 
-class NotificationService {
-    private Database $db;
-    private array $notificationTypes;
+use PDO;
 
-    public function __construct(Database $db) {
+/**
+ * Notification Service
+ *
+ * Manages real-time notifications for household members
+ */
+class NotificationService
+{
+    private PDO $db;
+    private ?EmailService $emailService = null;
+
+    public function __construct(PDO $db)
+    {
         $this->db = $db;
-        $this->notificationTypes = [
-            'goal_milestone' => 'Goal milestone achieved',
-            'budget_alert' => 'Budget limit exceeded',
-            'weekly_digest' => 'Weekly financial summary',
-            'scenario_insight' => 'New scenario planning insight',
-            'career_opportunity' => 'Career opportunity available',
-            'crisis_alert' => 'Financial crisis alert',
-            'savings_reminder' => 'Savings goal reminder',
-            'investment_alert' => 'Investment opportunity alert'
-        ];
+    }
+
+    public function setEmailService(EmailService $emailService): void
+    {
+        $this->emailService = $emailService;
     }
 
     /**
-     * Create a notification
+     * Create notification
      */
-    public function createNotification(int $userId, string $type, string $title, string $message, array $metadata = []): int {
-        return $this->db->insert('notifications', [
-            'user_id' => $userId,
-            'type' => $type,
-            'title' => $title,
-            'message' => $message,
-            'metadata' => json_encode($metadata),
-            'is_read' => 0,
-            'created_at' => date('Y-m-d H:i:s')
+    public function create(
+        int $householdId,
+        int $userId,
+        string $type,
+        string $title,
+        string $message,
+        string $priority = 'normal',
+        ?array $options = null
+    ): int {
+        $stmt = $this->db->prepare("
+            INSERT INTO notifications
+            (household_id, user_id, notification_type, title, message, priority, action_url, action_label, icon, related_entity_type, related_entity_id, metadata_json, expires_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        $stmt->execute([
+            $householdId,
+            $userId,
+            $type,
+            $title,
+            $message,
+            $priority,
+            $options['action_url'] ?? null,
+            $options['action_label'] ?? null,
+            $options['icon'] ?? null,
+            $options['related_entity_type'] ?? null,
+            $options['related_entity_id'] ?? null,
+            isset($options['metadata']) ? json_encode($options['metadata']) : null,
+            $options['expires_at'] ?? null
         ]);
+
+        $notificationId = (int)$this->db->lastInsertId();
+
+        // Send email if enabled
+        if ($this->shouldSendEmail($userId, $type, $priority)) {
+            $this->sendEmailNotification($userId, $title, $message, $options['action_url'] ?? null);
+        }
+
+        return $notificationId;
+    }
+
+    /**
+     * Notify multiple users
+     */
+    public function notifyMembers(
+        int $householdId,
+        array $userIds,
+        string $type,
+        string $title,
+        string $message,
+        string $priority = 'normal',
+        ?array $options = null
+    ): array {
+        $notificationIds = [];
+
+        foreach ($userIds as $userId) {
+            $notificationIds[] = $this->create($householdId, $userId, $type, $title, $message, $priority, $options);
+        }
+
+        return $notificationIds;
     }
 
     /**
      * Get user notifications
      */
-    public function getNotifications(int $userId, int $limit = 50, int $offset = 0): array {
-        $notifications = $this->db->query(
-            "SELECT * FROM notifications
-             WHERE user_id = ?
-             ORDER BY created_at DESC
-             LIMIT ? OFFSET ?",
-            [$userId, $limit, $offset]
-        );
+    public function getUserNotifications(int $userId, int $limit = 50, bool $unreadOnly = false): array
+    {
+        $where = "user_id = ? AND is_archived = 0";
+        $params = [$userId];
 
-        // Decode metadata
-        foreach ($notifications as &$notification) {
-            $notification['metadata'] = json_decode($notification['metadata'], true) ?: [];
+        if ($unreadOnly) {
+            $where .= " AND is_read = 0";
         }
 
-        return $notifications;
+        $stmt = $this->db->prepare("
+            SELECT *
+            FROM notifications
+            WHERE {$where}
+            ORDER BY priority DESC, created_at DESC
+            LIMIT ?
+        ");
+
+        $params[] = $limit;
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Mark notification as read
+     * Get unread count
      */
-    public function markAsRead(int $userId, int $notificationId): bool {
-        return $this->db->update('notifications',
-            ['is_read' => 1, 'read_at' => date('Y-m-d H:i:s')],
-            ['id' => $notificationId, 'user_id' => $userId]
-        );
+    public function getUnreadCount(int $userId): int
+    {
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as count
+            FROM notifications
+            WHERE user_id = ? AND is_read = 0 AND is_archived = 0
+        ");
+        $stmt->execute([$userId]);
+
+        return (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
 
     /**
-     * Mark all notifications as read
+     * Mark as read
      */
-    public function markAllAsRead(int $userId): bool {
-        return $this->db->update('notifications',
-            ['is_read' => 1, 'read_at' => date('Y-m-d H:i:s')],
-            ['user_id' => $userId, 'is_read' => 0]
-        );
+    public function markAsRead(int $notificationId, int $userId): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE notifications
+            SET is_read = 1, read_at = CURRENT_TIMESTAMP
+            WHERE id = ? AND user_id = ?
+        ");
+
+        return $stmt->execute([$notificationId, $userId]);
     }
 
     /**
-     * Delete notification
+     * Mark all as read
      */
-    public function deleteNotification(int $userId, int $notificationId): bool {
-        return $this->db->delete('notifications', ['id' => $notificationId, 'user_id' => $userId]);
+    public function markAllAsRead(int $userId, ?int $householdId = null): bool
+    {
+        $where = "user_id = ?";
+        $params = [$userId];
+
+        if ($householdId) {
+            $where .= " AND household_id = ?";
+            $params[] = $householdId;
+        }
+
+        $stmt = $this->db->prepare("
+            UPDATE notifications
+            SET is_read = 1, read_at = CURRENT_TIMESTAMP
+            WHERE {$where} AND is_read = 0
+        ");
+
+        return $stmt->execute($params);
     }
 
     /**
-     * Generate weekly digest
+     * Archive notification
      */
-    public function generateWeeklyDigest(int $userId): array {
-        $weekStart = date('Y-m-d', strtotime('monday this week'));
-        $weekEnd = date('Y-m-d', strtotime('sunday this week'));
+    public function archive(int $notificationId, int $userId): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE notifications
+            SET is_archived = 1
+            WHERE id = ? AND user_id = ?
+        ");
 
-        $digest = [
-            'period' => ['start' => $weekStart, 'end' => $weekEnd],
-            'financial_summary' => $this->getFinancialSummary($userId, $weekStart, $weekEnd),
-            'goal_progress' => $this->getGoalProgress($userId),
-            'budget_performance' => $this->getBudgetPerformance($userId, $weekStart, $weekEnd),
-            'insights' => $this->getWeeklyInsights($userId),
-            'recommendations' => $this->getWeeklyRecommendations($userId)
+        return $stmt->execute([$notificationId, $userId]);
+    }
+
+    /**
+     * Delete expired notifications
+     */
+    public function deleteExpired(): int
+    {
+        $stmt = $this->db->prepare("
+            DELETE FROM notifications
+            WHERE expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP
+        ");
+
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Check if should send email
+     */
+    private function shouldSendEmail(int $userId, string $type, string $priority): bool
+    {
+        if (!$this->emailService) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT * FROM notification_preferences
+            WHERE user_id = ? AND household_id IS NULL
+        ");
+        $stmt->execute([$userId]);
+        $prefs = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$prefs) {
+            return $priority === 'urgent'; // Default: email only urgent
+        }
+
+        // Check if email enabled for this type
+        $emailMap = [
+            'approval' => 'email_approvals',
+            'alert' => 'email_alerts',
+            'invitation' => 'email_invitations'
         ];
 
-        return $digest;
+        $prefKey = $emailMap[$type] ?? null;
+
+        return $prefKey && !empty($prefs[$prefKey]);
     }
 
     /**
-     * Send weekly digest email
+     * Send email notification
      */
-    public function sendWeeklyDigest(int $userId): bool {
-        $digest = $this->generateWeeklyDigest($userId);
-
-        // Create notification
-        $title = 'Weekly Financial Digest - ' . date('M j, Y');
-        $message = $this->formatDigestMessage($digest);
-
-        $this->createNotification($userId, 'weekly_digest', $title, $message, [
-            'digest_data' => $digest,
-            'email_sent' => true
-        ]);
-
-        // TODO: Implement actual email sending
-        // $this->sendEmail($userId, $title, $this->formatDigestEmail($digest));
-
-        return true;
-    }
-
-    /**
-     * Create contextual action notification
-     */
-    public function createContextualAction(int $userId, string $contextType, array $contextData): int {
-        $action = $this->generateContextualAction($contextType, $contextData);
-
-        return $this->createNotification(
-            $userId,
-            'contextual_action',
-            $action['title'],
-            $action['message'],
-            [
-                'context_type' => $contextType,
-                'context_data' => $contextData,
-                'action_type' => $action['action_type'],
-                'action_data' => $action['action_data']
-            ]
-        );
-    }
-
-    /**
-     * Get notification preferences
-     */
-    public function getNotificationPreferences(int $userId): array {
-        $preferences = [];
-
-        foreach ($this->notificationTypes as $type => $description) {
-            $setting = $this->db->queryOne(
-                "SELECT setting_value FROM user_settings
-                 WHERE user_id = ? AND category = 'notifications' AND setting_key = ?",
-                [$userId, $type . '_enabled']
-            );
-
-            $preferences[$type] = [
-                'enabled' => $setting ? (bool)$setting['setting_value'] : true,
-                'description' => $description
-            ];
+    private function sendEmailNotification(int $userId, string $title, string $message, ?string $actionUrl): void
+    {
+        if (!$this->emailService) {
+            return;
         }
 
-        return $preferences;
-    }
+        // Get user email
+        $stmt = $this->db->prepare("SELECT email FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    /**
-     * Update notification preferences
-     */
-    public function updateNotificationPreferences(int $userId, array $preferences): bool {
-        foreach ($preferences as $type => $enabled) {
-            $this->db->insert('user_settings', [
-                'user_id' => $userId,
-                'category' => 'notifications',
-                'setting_key' => $type . '_enabled',
-                'setting_value' => $enabled ? '1' : '0',
-                'updated_at' => date('Y-m-d H:i:s')
-            ], true); // Upsert
+        if (!$user) {
+            return;
         }
 
-        return true;
-    }
-
-    /**
-     * Helper methods
-     */
-    private function getFinancialSummary(int $userId, string $startDate, string $endDate): array {
-        // Get transactions for the week
-        $transactions = $this->db->query(
-            "SELECT type, amount FROM transactions
-             WHERE user_id = ? AND date BETWEEN ? AND ?",
-            [$userId, $startDate, $endDate]
-        );
-
-        $income = 0;
-        $expenses = 0;
-
-        foreach ($transactions as $transaction) {
-            if ($transaction['type'] === 'income') {
-                $income += $transaction['amount'];
-            } else {
-                $expenses += $transaction['amount'];
-            }
+        $body = $message;
+        if ($actionUrl) {
+            $body .= "\n\nView details: " . $actionUrl;
         }
 
-        return [
-            'total_income' => $income,
-            'total_expenses' => $expenses,
-            'net_savings' => $income - $expenses,
-            'transaction_count' => count($transactions)
-        ];
-    }
-
-    private function getGoalProgress(int $userId): array {
-        $goals = $this->db->query(
-            "SELECT id, name, current_amount, target_amount FROM goals
-             WHERE user_id = ? AND is_active = 1",
-            [$userId]
-        );
-
-        $progress = [];
-        foreach ($goals as $goal) {
-            $percentage = $goal['target_amount'] > 0 ? ($goal['current_amount'] / $goal['target_amount']) * 100 : 0;
-            $progress[] = [
-                'name' => $goal['name'],
-                'progress_percentage' => round($percentage, 1),
-                'current_amount' => $goal['current_amount'],
-                'target_amount' => $goal['target_amount']
-            ];
+        try {
+            $this->emailService->send($user['email'], $title, $body);
+        } catch (\Exception $e) {
+            // Log error but don't fail
+            error_log("Failed to send notification email: " . $e->getMessage());
         }
-
-        return $progress;
-    }
-
-    private function getBudgetPerformance(int $userId, string $startDate, string $endDate): array {
-        $budgets = $this->db->query(
-            "SELECT b.category_id, b.amount as budget_amount, c.name as category_name,
-                    COALESCE(SUM(t.amount), 0) as spent
-             FROM budgets b
-             JOIN categories c ON b.category_id = c.id
-             LEFT JOIN transactions t ON t.category_id = b.category_id
-                AND t.user_id = b.user_id
-                AND t.type = 'expense'
-                AND t.date BETWEEN ? AND ?
-             WHERE b.user_id = ? AND b.month = ?
-             GROUP BY b.category_id, b.amount, c.name",
-            [$startDate, $endDate, $userId, date('Y-m')]
-        );
-
-        $performance = [];
-        foreach ($budgets as $budget) {
-            $percentage = $budget['budget_amount'] > 0 ? ($budget['spent'] / $budget['budget_amount']) * 100 : 0;
-            $performance[] = [
-                'category' => $budget['category_name'],
-                'budget_amount' => $budget['budget_amount'],
-                'spent' => $budget['spent'],
-                'percentage_used' => round($percentage, 1),
-                'status' => $percentage > 100 ? 'over_budget' : ($percentage > 80 ? 'warning' : 'good')
-            ];
-        }
-
-        return $performance;
-    }
-
-    private function getWeeklyInsights(int $userId): array {
-        $insights = [];
-
-        // Check for unusual spending patterns
-        $avgDailySpending = $this->getAverageDailySpending($userId);
-        $yesterdaySpending = $this->getYesterdaySpending($userId);
-
-        if ($yesterdaySpending > $avgDailySpending * 2) {
-            $insights[] = [
-                'type' => 'spending_alert',
-                'message' => 'Yesterday\'s spending was significantly higher than your daily average.',
-                'severity' => 'medium'
-            ];
-        }
-
-        // Check goal progress
-        $goals = $this->db->query(
-            "SELECT name, target_date FROM goals
-             WHERE user_id = ? AND is_active = 1 AND target_date IS NOT NULL",
-            [$userId]
-        );
-
-        foreach ($goals as $goal) {
-            $daysLeft = floor((strtotime($goal['target_date']) - time()) / (60 * 60 * 24));
-            if ($daysLeft <= 7 && $daysLeft > 0) {
-                $insights[] = [
-                    'type' => 'goal_deadline',
-                    'message' => "Goal '{$goal['name']}' is due in {$daysLeft} days.",
-                    'severity' => 'high'
-                ];
-            }
-        }
-
-        return $insights;
-    }
-
-    private function getWeeklyRecommendations(int $userId): array {
-        $recommendations = [];
-
-        // Budget recommendations
-        $budgetPerformance = $this->getBudgetPerformance($userId, date('Y-m-d', strtotime('-7 days')), date('Y-m-d'));
-        foreach ($budgetPerformance as $budget) {
-            if ($budget['status'] === 'over_budget') {
-                $recommendations[] = [
-                    'type' => 'budget_control',
-                    'title' => 'Review ' . $budget['category'] . ' spending',
-                    'message' => "You've exceeded your {$budget['category']} budget. Consider reviewing expenses.",
-                    'action_type' => 'view_budget',
-                    'action_data' => ['category_id' => $budget['category_id']]
-                ];
-            }
-        }
-
-        // Savings recommendations
-        $goalProgress = $this->getGoalProgress($userId);
-        foreach ($goalProgress as $goal) {
-            if ($goal['progress_percentage'] < 50) {
-                $recommendations[] = [
-                    'type' => 'savings_boost',
-                    'title' => 'Accelerate ' . $goal['name'],
-                    'message' => "You're {$goal['progress_percentage']}% toward your goal. Consider increasing monthly contributions.",
-                    'action_type' => 'view_goal',
-                    'action_data' => ['goal_name' => $goal['name']]
-                ];
-            }
-        }
-
-        return $recommendations;
-    }
-
-    private function generateContextualAction(string $contextType, array $contextData): array {
-        switch ($contextType) {
-            case 'high_expense':
-                return [
-                    'title' => 'Unusual Expense Detected',
-                    'message' => "Large expense of {$contextData['amount']} CZK in {$contextData['category']}. Review transaction?",
-                    'action_type' => 'review_transaction',
-                    'action_data' => ['transaction_id' => $contextData['transaction_id']]
-                ];
-
-            case 'goal_milestone':
-                return [
-                    'title' => 'Goal Milestone Reached!',
-                    'message' => "Congratulations! You've reached {$contextData['percentage']}% of your {$contextData['goal_name']} goal.",
-                    'action_type' => 'celebrate_milestone',
-                    'action_data' => ['goal_id' => $contextData['goal_id']]
-                ];
-
-            case 'budget_warning':
-                return [
-                    'title' => 'Budget Alert',
-                    'message' => "You've used {$contextData['percentage']}% of your {$contextData['category']} budget.",
-                    'action_type' => 'adjust_budget',
-                    'action_data' => ['category_id' => $contextData['category_id']]
-                ];
-
-            case 'career_opportunity':
-                return [
-                    'title' => 'Career Opportunity',
-                    'message' => "New {$contextData['role']} position available with salary up to {$contextData['salary']} CZK.",
-                    'action_type' => 'explore_career',
-                    'action_data' => ['role' => $contextData['role'], 'region' => $contextData['region']]
-                ];
-
-            default:
-                return [
-                    'title' => 'Action Required',
-                    'message' => 'Please review this notification.',
-                    'action_type' => 'general_action',
-                    'action_data' => $contextData
-                ];
-        }
-    }
-
-    private function formatDigestMessage(array $digest): string {
-        $message = "📊 Weekly Financial Summary\n\n";
-
-        $summary = $digest['financial_summary'];
-        $message .= "💰 Income: " . number_format($summary['total_income'], 0, ',', ' ') . " CZK\n";
-        $message .= "💸 Expenses: " . number_format($summary['total_expenses'], 0, ',', ' ') . " CZK\n";
-        $message .= "📈 Net Savings: " . number_format($summary['net_savings'], 0, ',', ' ') . " CZK\n\n";
-
-        if (!empty($digest['insights'])) {
-            $message .= "🔍 Key Insights:\n";
-            foreach ($digest['insights'] as $insight) {
-                $message .= "• " . $insight['message'] . "\n";
-            }
-            $message .= "\n";
-        }
-
-        if (!empty($digest['recommendations'])) {
-            $message .= "💡 Recommendations:\n";
-            foreach ($digest['recommendations'] as $rec) {
-                $message .= "• " . $rec['message'] . "\n";
-            }
-        }
-
-        return $message;
-    }
-
-    private function getAverageDailySpending(int $userId): float {
-        $result = $this->db->queryOne(
-            "SELECT AVG(daily_total) as avg_daily
-             FROM (
-                 SELECT DATE(date) as day, SUM(amount) as daily_total
-                 FROM transactions
-                 WHERE user_id = ? AND type = 'expense'
-                 AND date >= DATE('now', '-30 days')
-                 GROUP BY DATE(date)
-             )",
-            [$userId]
-        );
-
-        return $result['avg_daily'] ?? 0;
-    }
-
-    private function getYesterdaySpending(int $userId): float {
-        $result = $this->db->queryOne(
-            "SELECT COALESCE(SUM(amount), 0) as yesterday_total
-             FROM transactions
-             WHERE user_id = ? AND type = 'expense'
-             AND DATE(date) = DATE('now', '-1 day')",
-            [$userId]
-        );
-
-        return $result['yesterday_total'] ?? 0;
     }
 }

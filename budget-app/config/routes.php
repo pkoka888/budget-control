@@ -114,6 +114,69 @@ return [
     '/api/v1/insights' => ['controller' => 'Api\\Insights', 'action' => 'index'],
     '/api/v1/bills' => ['controller' => 'Api\\Bill', 'action' => 'index'],
 
+    // v2.0 Features - Family Sharing
+    // Household Management
+    '/household' => ['controller' => 'Household', 'action' => 'index'],
+    '/household/create' => ['controller' => 'Household', 'action' => 'create'],
+    '/household/store' => ['controller' => 'Household', 'action' => 'store', 'method' => 'POST'],
+    '/household/{id}' => ['controller' => 'Household', 'action' => 'show'],
+    '/household/{id}/update' => ['controller' => 'Household', 'action' => 'update', 'method' => 'POST'],
+    '/household/{id}/delete' => ['controller' => 'Household', 'action' => 'delete', 'method' => 'POST'],
+    '/household/{id}/leave' => ['controller' => 'Household', 'action' => 'leave', 'method' => 'POST'],
+
+    // Member Management
+    '/household/{id}/invite' => ['controller' => 'Household', 'action' => 'inviteMember', 'method' => 'POST'],
+    '/household/{id}/member/{memberId}/role' => ['controller' => 'Household', 'action' => 'updateMemberRole', 'method' => 'POST'],
+    '/household/{id}/member/{memberId}/remove' => ['controller' => 'Household', 'action' => 'removeMember', 'method' => 'POST'],
+
+    // Invitations
+    '/invitation/accept/{token}' => ['controller' => 'Household', 'action' => 'acceptInvitation'],
+    '/invitation/accept' => ['controller' => 'Household', 'action' => 'processAcceptance', 'method' => 'POST'],
+    '/invitation/{id}/cancel' => ['controller' => 'Household', 'action' => 'cancelInvitation', 'method' => 'POST'],
+    '/invitation/{id}/resend' => ['controller' => 'Household', 'action' => 'resendInvitation', 'method' => 'POST'],
+
+    // Activity Feed
+    '/activity/{householdId}' => ['controller' => 'Household', 'action' => 'activity'],
+    '/activity/{householdId}/filter' => ['controller' => 'Household', 'action' => 'filterActivity'],
+
+    // Notifications
+    '/notifications' => ['controller' => 'Notification', 'action' => 'index'],
+    '/notifications/unread' => ['controller' => 'Notification', 'action' => 'unread'],
+    '/notifications/{id}/read' => ['controller' => 'Notification', 'action' => 'markAsRead', 'method' => 'POST'],
+    '/notifications/mark-all-read' => ['controller' => 'Notification', 'action' => 'markAllAsRead', 'method' => 'POST'],
+    '/notifications/{id}/dismiss' => ['controller' => 'Notification', 'action' => 'dismiss', 'method' => 'POST'],
+
+    // Approvals
+    '/approval/household/{householdId}' => ['controller' => 'Approval', 'action' => 'index'],
+    '/approval/{id}' => ['controller' => 'Approval', 'action' => 'show'],
+    '/approval/{id}/approve' => ['controller' => 'Approval', 'action' => 'approve', 'method' => 'POST'],
+    '/approval/{id}/reject' => ['controller' => 'Approval', 'action' => 'reject', 'method' => 'POST'],
+
+    // Child Accounts
+    '/child-account/{householdId}' => ['controller' => 'ChildAccount', 'action' => 'index'],
+    '/child-account/{householdId}/settings' => ['controller' => 'ChildAccount', 'action' => 'settings'],
+    '/child-account/{householdId}/transactions' => ['controller' => 'ChildAccount', 'action' => 'transactions'],
+    '/child-account/{householdId}/allowance' => ['controller' => 'ChildAccount', 'action' => 'allowance'],
+    '/child-account/{householdId}/money-request' => ['controller' => 'ChildAccount', 'action' => 'createMoneyRequest', 'method' => 'POST'],
+    '/child-account/money-request/{id}/cancel' => ['controller' => 'ChildAccount', 'action' => 'cancelMoneyRequest', 'method' => 'POST'],
+    '/child-account/chore/{choreId}/complete' => ['controller' => 'ChildAccount', 'action' => 'completeChore', 'method' => 'POST'],
+
+    // Chores
+    '/chores/household/{householdId}' => ['controller' => 'Chore', 'action' => 'index'],
+    '/chores/household/{householdId}/stats' => ['controller' => 'Chore', 'action' => 'stats'],
+    '/chores/my-chores' => ['controller' => 'Chore', 'action' => 'myChores'],
+    '/chores/store' => ['controller' => 'Chore', 'action' => 'store', 'method' => 'POST'],
+    '/chores/{id}' => ['controller' => 'Chore', 'action' => 'show'],
+    '/chores/{id}/update' => ['controller' => 'Chore', 'action' => 'update', 'method' => 'POST'],
+    '/chores/{id}/delete' => ['controller' => 'Chore', 'action' => 'delete', 'method' => 'POST'],
+    '/chores/completion/{completionId}/verify' => ['controller' => 'Chore', 'action' => 'verifyCompletion', 'method' => 'POST'],
+
+    // Comments (for transactions, budgets, etc.)
+    '/comments/{entityType}/{entityId}' => ['controller' => 'Comment', 'action' => 'index'],
+    '/comments/store' => ['controller' => 'Comment', 'action' => 'store', 'method' => 'POST'],
+    '/comments/{id}/update' => ['controller' => 'Comment', 'action' => 'update', 'method' => 'POST'],
+    '/comments/{id}/delete' => ['controller' => 'Comment', 'action' => 'delete', 'method' => 'POST'],
+
     // Auth Routes
     '/login' => ['controller' => 'Auth', 'action' => 'login'],
     '/logout' => ['controller' => 'Auth', 'action' => 'logout'],

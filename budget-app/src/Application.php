@@ -286,6 +286,72 @@ class Application {
         $this->router->post('/settings/import', 'SettingsController@importData');
         $this->router->post('/settings/delete-account', 'SettingsController@deleteAccount');
         $this->router->post('/settings/change-password', 'SettingsController@changePassword');
+
+        // ========================================
+        // Family Sharing Routes (v2.0)
+        // ========================================
+
+        // Household Management
+        $this->router->get('/household', 'HouseholdController@index');
+        $this->router->get('/household/create', 'HouseholdController@createForm');
+        $this->router->post('/household/store', 'HouseholdController@store');
+        $this->router->get('/household/:id', 'HouseholdController@show');
+        $this->router->post('/household/:id/update', 'HouseholdController@update');
+        $this->router->post('/household/:id/delete', 'HouseholdController@delete');
+        $this->router->post('/household/:id/leave', 'HouseholdController@leave');
+
+        // Member Management
+        $this->router->post('/household/:id/invite', 'HouseholdController@inviteMember');
+        $this->router->post('/household/:id/member/:memberId/role', 'HouseholdController@updateMemberRole');
+        $this->router->post('/household/:id/member/:memberId/remove', 'HouseholdController@removeMember');
+
+        // Invitations
+        $this->router->get('/invitation/accept/:token', 'HouseholdController@acceptInvitationForm');
+        $this->router->post('/invitation/accept', 'HouseholdController@processAcceptance');
+        $this->router->post('/invitation/:id/cancel', 'HouseholdController@cancelInvitation');
+        $this->router->post('/invitation/:id/resend', 'HouseholdController@resendInvitation');
+
+        // Activity Feed
+        $this->router->get('/activity/:householdId', 'HouseholdController@activity');
+        $this->router->get('/activity/:householdId/filter', 'HouseholdController@filterActivity');
+
+        // Notifications
+        $this->router->get('/notifications', 'NotificationController@index');
+        $this->router->get('/notifications/unread', 'NotificationController@unread');
+        $this->router->post('/notifications/:id/read', 'NotificationController@markAsRead');
+        $this->router->post('/notifications/mark-all-read', 'NotificationController@markAllAsRead');
+        $this->router->post('/notifications/:id/dismiss', 'NotificationController@dismiss');
+
+        // Approvals
+        $this->router->get('/approval/household/:householdId', 'ApprovalController@index');
+        $this->router->get('/approval/:id', 'ApprovalController@show');
+        $this->router->post('/approval/:id/approve', 'ApprovalController@approve');
+        $this->router->post('/approval/:id/reject', 'ApprovalController@reject');
+
+        // Child Accounts
+        $this->router->get('/child-account/:householdId', 'ChildAccountController@index');
+        $this->router->get('/child-account/:householdId/settings', 'ChildAccountController@settings');
+        $this->router->get('/child-account/:householdId/transactions', 'ChildAccountController@transactions');
+        $this->router->get('/child-account/:householdId/allowance', 'ChildAccountController@allowance');
+        $this->router->post('/child-account/:householdId/money-request', 'ChildAccountController@createMoneyRequest');
+        $this->router->post('/child-account/money-request/:id/cancel', 'ChildAccountController@cancelMoneyRequest');
+        $this->router->post('/child-account/chore/:choreId/complete', 'ChildAccountController@completeChore');
+
+        // Chores
+        $this->router->get('/chores/household/:householdId', 'ChoreController@index');
+        $this->router->get('/chores/household/:householdId/stats', 'ChoreController@stats');
+        $this->router->get('/chores/my-chores', 'ChoreController@myChores');
+        $this->router->post('/chores/store', 'ChoreController@store');
+        $this->router->get('/chores/:id', 'ChoreController@show');
+        $this->router->post('/chores/:id/update', 'ChoreController@update');
+        $this->router->post('/chores/:id/delete', 'ChoreController@delete');
+        $this->router->post('/chores/completion/:completionId/verify', 'ChoreController@verifyCompletion');
+
+        // Comments
+        $this->router->get('/comments/:entityType/:entityId', 'CommentController@index');
+        $this->router->post('/comments/store', 'CommentController@store');
+        $this->router->post('/comments/:id/update', 'CommentController@update');
+        $this->router->post('/comments/:id/delete', 'CommentController@delete');
     }
 
     public function run(): void {

@@ -1,0 +1,54 @@
+========================================
+YOU'RE INVITED TO JOIN A HOUSEHOLD
+========================================
+
+Hi {{invitee_name}},
+
+{{inviter_name}} has invited you to join their household on Budget Control!
+
+HOUSEHOLD: {{household_name}}
+YOUR ROLE: {{role}}
+
+{{#message}}
+PERSONAL MESSAGE:
+"{{message}}"
+{{/message}}
+
+WHAT YOU CAN DO AS A {{role}}:
+{{#if_owner}}
+- Full control over household finances
+- Invite and manage members
+- Create and delete budgets, goals, and transactions
+- Configure household settings
+{{/if_owner}}
+{{#if_partner}}
+- Manage household finances
+- Create and edit budgets and goals
+- Add and categorize transactions
+- View household reports
+{{/if_partner}}
+{{#if_viewer}}
+- View all household finances
+- Access reports and analytics
+- Read-only access to transactions and budgets
+- Cannot make changes
+{{/if_viewer}}
+{{#if_child}}
+- Track your own balance and spending
+- Complete chores to earn rewards
+- Request money from parents
+- Learn financial responsibility
+{{/if_child}}
+
+ACCEPT THIS INVITATION:
+{{accept_url}}
+
+IMPORTANT: This invitation expires on {{expiry_date}}
+If you don't accept by then, you'll need to request a new invitation.
+
+========================================
+Budget Control - Track together, achieve together
+========================================
+
+You received this email because {{inviter_name}} invited you to join their household.
+If you didn't expect this invitation, you can safely ignore this email.

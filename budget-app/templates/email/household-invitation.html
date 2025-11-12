@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're Invited!</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+        .header-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        .household-info {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+        .household-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .message-box {
+            background: #fff5e6;
+            border-left: 4px solid #f39c12;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-style: italic;
+        }
+        .button-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+        .accept-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: #48bb78;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+            transition: all 0.3s ease;
+        }
+        .accept-button:hover {
+            background: #38a169;
+            box-shadow: 0 6px 16px rgba(72, 187, 120, 0.4);
+        }
+        .role-info {
+            background: #e6f7ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        .role-info h3 {
+            margin: 0 0 12px 0;
+            color: #2d3748;
+            font-size: 16px;
+        }
+        .role-info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .role-info li {
+            margin: 8px 0;
+            color: #4a5568;
+        }
+        .expiry-notice {
+            text-align: center;
+            font-size: 13px;
+            color: #718096;
+            margin-top: 24px;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 6px;
+        }
+        .footer {
+            background: #2d3748;
+            padding: 24px 30px;
+            text-align: center;
+            color: #a0aec0;
+            font-size: 14px;
+        }
+        .footer-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-icon">👨‍👩‍👧‍👦</div>
+            <h1>You're Invited!</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="greeting">
+                Hi {{invitee_name}},
+            </div>
+
+            <p>
+                <strong>{{inviter_name}}</strong> has invited you to join their household on Budget Control!
+            </p>
+
+            <div class="household-info">
+                <div class="household-name">{{household_name}}</div>
+                <div>Your role: <span class="role-badge">{{role}}</span></div>
+            </div>
+
+            {{#message}}
+            <div class="message-box">
+                <strong>Personal message:</strong><br>
+                "{{message}}"
+            </div>
+            {{/message}}
+
+            <!-- Role Information -->
+            <div class="role-info">
+                <h3>🔐 What you can do as a {{role}}:</h3>
+                {{#if_owner}}
+                <ul>
+                    <li>Full control over household finances</li>
+                    <li>Invite and manage members</li>
+                    <li>Create and delete budgets, goals, and transactions</li>
+                    <li>Configure household settings</li>
+                </ul>
+                {{/if_owner}}
+                {{#if_partner}}
+                <ul>
+                    <li>Manage household finances</li>
+                    <li>Create and edit budgets and goals</li>
+                    <li>Add and categorize transactions</li>
+                    <li>View household reports</li>
+                </ul>
+                {{/if_partner}}
+                {{#if_viewer}}
+                <ul>
+                    <li>View all household finances</li>
+                    <li>Access reports and analytics</li>
+                    <li>Read-only access to transactions and budgets</li>
+                    <li>Cannot make changes</li>
+                </ul>
+                {{/if_viewer}}
+                {{#if_child}}
+                <ul>
+                    <li>Track your own balance and spending</li>
+                    <li>Complete chores to earn rewards</li>
+                    <li>Request money from parents</li>
+                    <li>Learn financial responsibility</li>
+                </ul>
+                {{/if_child}}
+            </div>
+
+            <!-- Accept Button -->
+            <div class="button-container">
+                <a href="{{accept_url}}" class="accept-button">
+                    ✓ Accept Invitation
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Expiry Notice -->
+            <div class="expiry-notice">
+                ⏰ This invitation expires on <strong>{{expiry_date}}</strong><br>
+                <small>If you don't accept by then, you'll need to request a new invitation</small>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-logo">Budget Control</div>
+            <div>Track together, achieve together</div>
+            <br>
+            <small>
+                You received this email because {{inviter_name}} invited you to join their household.<br>
+                If you didn't expect this invitation, you can safely ignore this email.
+            </small>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approval Needed</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f7f9fc; margin: 0; padding: 0; }
+        .email-container { max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); padding: 40px 30px; text-align: center; color: white; }
+        .header-icon { font-size: 64px; margin-bottom: 16px; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .content { padding: 40px 30px; }
+        .alert-box { background: #fff5e6; border-left: 4px solid #f39c12; padding: 20px; margin: 24px 0; border-radius: 4px; }
+        .amount { font-size: 32px; font-weight: 700; color: #e67e22; margin: 16px 0; }
+        .reason-box { background: #f7fafc; padding: 16px; border-radius: 8px; margin: 20px 0; font-style: italic; }
+        .button-container { text-align: center; margin: 32px 0; display: flex; gap: 12px; justify-content: center; }
+        .approve-button { display: inline-block; padding: 16px 32px; background: #48bb78; color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; }
+        .reject-button { display: inline-block; padding: 16px 32px; background: #f56565; color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; }
+        .footer { background: #2d3748; padding: 24px 30px; text-align: center; color: #a0aec0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="header-icon">✅</div>
+            <h1>Approval Needed</h1>
+        </div>
+        <div class="content">
+            <div class="alert-box">
+                <strong>{{child_name}}</strong> is requesting approval for a transaction.
+            </div>
+            <div class="amount">{{amount}} {{currency}}</div>
+            <div class="reason-box">
+                <strong>Reason:</strong><br>
+                "{{reason}}"
+            </div>
+            <p><strong>Transaction Type:</strong> {{type}}<br>
+            <strong>Requested:</strong> {{date}}<br>
+            <strong>Expires:</strong> {{expiry_date}}</p>
+            <div class="button-container">
+                <a href="{{approve_url}}" class="approve-button">✓ Approve</a>
+                <a href="{{reject_url}}" class="reject-button">✗ Reject</a>
+            </div>
+        </div>
+        <div class="footer">
+            <div>Budget Control - Family Sharing</div>
+        </div>
+    </div>
+</body>
+</html>

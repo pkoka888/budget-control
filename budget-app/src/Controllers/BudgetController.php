@@ -352,4 +352,286 @@ class BudgetController extends BaseController {
             $this->json(['error' => 'Failed to calculate performance: ' . $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Display budget templates management view
+     */
+    public function templatesView(array $params = []): void {
+        $userId = $this->getUserId();
+
+        // Get categories for template creation
+        $categories = $this->db->query(
+            "SELECT id, name FROM categories WHERE user_id = ? OR user_id IS NULL ORDER BY name",
+            [$userId]
+        );
+
+        echo $this->app->render('budgets/templates', [
+            'categories' => $categories
+        ]);
+    }
+
+    /**
+     * Create a new budget template
+     */
+    public function createTemplate(array $params = []): void {
+        $userId = $this->getUserId();
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($data['name']) || !isset($data['template_type']) || !isset($data['categories'])) {
+            $this->json(['error' => 'Missing required fields'], 400);
+            return;
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+            $templateId = $this->db->insert('budget_templates', [
+                'user_id' => $userId,
+                'name' => $data['name'],
+                'template_type' => $data['template_type'],
+                'description' => $data['description'] ?? '',
+                'is_system' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Insert template categories
+            foreach ($data['categories'] as $category) {
+                $this->db->insert('template_categories', [
+                    'template_id' => $templateId,
+                    'category_id' => (int)$category['category_id'],
+                    'suggested_amount' => (float)$category['amount'],
+                    'suggested_percentage' => isset($category['percentage']) ? (float)$category['percentage'] : null
+                ]);
+            }
+
+            $this->db->commit();
+
+            $this->json([
+                'success' => true,
+                'id' => $templateId,
+                'message' => 'Template created successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->rollback();
+            $this->json(['error' => 'Failed to create template: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Update an existing budget template
+     */
+    public function updateTemplate(array $params = []): void {
+        $templateId = $params['id'] ?? 0;
+        $userId = $this->getUserId();
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Verify template belongs to user (not a system template)
+        $template = $this->db->queryOne(
+            "SELECT * FROM budget_templates WHERE id = ? AND user_id = ? AND is_system = 0",
+            [$templateId, $userId]
+        );
+
+        if (!$template) {
+            $this->json(['error' => 'Template not found or cannot be modified'], 404);
+            return;
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+            // Update template
+            $updates = [];
+            if (isset($data['name'])) $updates['name'] = $data['name'];
+            if (isset($data['template_type'])) $updates['template_type'] = $data['template_type'];
+            if (isset($data['description'])) $updates['description'] = $data['description'];
+
+            if (!empty($updates)) {
+                $this->db->update('budget_templates', $updates, ['id' => $templateId]);
+            }
+
+            // Update categories if provided
+            if (isset($data['categories'])) {
+                // Delete existing template categories
+                $this->db->delete('template_categories', ['template_id' => $templateId]);
+
+                // Insert new categories
+                foreach ($data['categories'] as $category) {
+                    $this->db->insert('template_categories', [
+                        'template_id' => $templateId,
+                        'category_id' => (int)$category['category_id'],
+                        'suggested_amount' => (float)$category['amount'],
+                        'suggested_percentage' => isset($category['percentage']) ? (float)$category['percentage'] : null
+                    ]);
+                }
+            }
+
+            $this->db->commit();
+
+            $this->json([
+                'success' => true,
+                'message' => 'Template updated successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->rollback();
+            $this->json(['error' => 'Failed to update template: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Delete a budget template
+     */
+    public function deleteTemplate(array $params = []): void {
+        $templateId = $params['id'] ?? 0;
+        $userId = $this->getUserId();
+
+        // Verify template belongs to user (not a system template)
+        $template = $this->db->queryOne(
+            "SELECT * FROM budget_templates WHERE id = ? AND user_id = ? AND is_system = 0",
+            [$templateId, $userId]
+        );
+
+        if (!$template) {
+            $this->json(['error' => 'Template not found or cannot be deleted'], 404);
+            return;
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+            $this->db->delete('template_categories', ['template_id' => $templateId]);
+            $this->db->delete('budget_templates', ['id' => $templateId]);
+
+            $this->db->commit();
+
+            $this->json([
+                'success' => true,
+                'message' => 'Template deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->rollback();
+            $this->json(['error' => 'Failed to delete template: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export a budget template as JSON
+     */
+    public function exportTemplate(array $params = []): void {
+        $templateId = $params['id'] ?? 0;
+        $userId = $this->getUserId();
+
+        // Get template with categories
+        $template = $this->db->queryOne(
+            "SELECT * FROM budget_templates WHERE id = ? AND (user_id = ? OR is_system = 1)",
+            [$templateId, $userId]
+        );
+
+        if (!$template) {
+            $this->json(['error' => 'Template not found'], 404);
+            return;
+        }
+
+        $categories = $this->db->query(
+            "SELECT tc.*, c.name as category_name
+             FROM template_categories tc
+             JOIN categories c ON tc.category_id = c.id
+             WHERE tc.template_id = ?",
+            [$templateId]
+        );
+
+        $exportData = [
+            'name' => $template['name'],
+            'template_type' => $template['template_type'],
+            'description' => $template['description'],
+            'categories' => array_map(function($cat) {
+                return [
+                    'category_name' => $cat['category_name'],
+                    'amount' => (float)$cat['suggested_amount'],
+                    'percentage' => $cat['suggested_percentage'] ? (float)$cat['suggested_percentage'] : null
+                ];
+            }, $categories),
+            'exported_at' => date('c'),
+            'version' => '1.0'
+        ];
+
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="budget-template-' . $templateId . '.json"');
+        echo json_encode($exportData, JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Import a budget template from JSON
+     */
+    public function importTemplate(array $params = []): void {
+        $userId = $this->getUserId();
+
+        if (!isset($_FILES['template_file'])) {
+            $this->json(['error' => 'No file uploaded'], 400);
+            return;
+        }
+
+        $file = $_FILES['template_file'];
+        $content = file_get_contents($file['tmp_name']);
+        $data = json_decode($content, true);
+
+        if (!$data || !isset($data['name']) || !isset($data['categories'])) {
+            $this->json(['error' => 'Invalid template format'], 400);
+            return;
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+            // Create new template
+            $templateId = $this->db->insert('budget_templates', [
+                'user_id' => $userId,
+                'name' => $data['name'] . ' (Imported)',
+                'template_type' => $data['template_type'] ?? 'custom',
+                'description' => $data['description'] ?? '',
+                'is_system' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Map categories by name
+            $allCategories = $this->db->query(
+                "SELECT id, name FROM categories WHERE user_id = ? OR user_id IS NULL",
+                [$userId]
+            );
+
+            $categoryMap = [];
+            foreach ($allCategories as $cat) {
+                $categoryMap[strtolower($cat['name'])] = $cat['id'];
+            }
+
+            // Insert template categories
+            foreach ($data['categories'] as $category) {
+                $categoryName = strtolower($category['category_name']);
+                if (isset($categoryMap[$categoryName])) {
+                    $this->db->insert('template_categories', [
+                        'template_id' => $templateId,
+                        'category_id' => $categoryMap[$categoryName],
+                        'suggested_amount' => (float)$category['amount'],
+                        'suggested_percentage' => isset($category['percentage']) ? (float)$category['percentage'] : null
+                    ]);
+                }
+            }
+
+            $this->db->commit();
+
+            $this->json([
+                'success' => true,
+                'id' => $templateId,
+                'message' => 'Template imported successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->rollback();
+            $this->json(['error' => 'Failed to import template: ' . $e->getMessage()], 500);
+        }
+    }
 }

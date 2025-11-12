@@ -853,4 +853,74 @@ class TransactionController extends BaseController {
             echo json_encode(['error' => 'Recurring transaction not found']);
         }
     }
+
+    /**
+     * Display recurring transactions management view
+     */
+    public function recurringView(array $params = []): void {
+        $userId = $this->getUserId();
+
+        // Get accounts and categories for form
+        $accounts = $this->db->query(
+            "SELECT id, name FROM accounts WHERE user_id = ? ORDER BY name",
+            [$userId]
+        );
+        $categories = $this->db->query(
+            "SELECT id, name FROM categories WHERE user_id = ? OR user_id IS NULL ORDER BY name",
+            [$userId]
+        );
+
+        echo $this->app->render('transactions/recurring', [
+            'accounts' => $accounts,
+            'categories' => $categories
+        ]);
+    }
+
+    /**
+     * Display transaction splits management view
+     */
+    public function splitsView(array $params = []): void {
+        $transactionId = $params['id'] ?? 0;
+        $userId = $this->getUserId();
+
+        // Get transaction details
+        $transaction = $this->db->queryOne(
+            "SELECT t.*, c.name as category_name, a.name as account_name
+             FROM transactions t
+             LEFT JOIN categories c ON t.category_id = c.id
+             JOIN accounts a ON t.account_id = a.id
+             WHERE t.id = ? AND a.user_id = ?",
+            [$transactionId, $userId]
+        );
+
+        if (!$transaction) {
+            http_response_code(404);
+            echo $this->app->render('errors/404', [
+                'message' => 'Transaction not found'
+            ]);
+            return;
+        }
+
+        // Get existing splits
+        $splits = $this->db->query(
+            "SELECT ts.*, c.name as category_name
+             FROM transaction_splits ts
+             JOIN categories c ON ts.category_id = c.id
+             WHERE ts.parent_transaction_id = ?
+             ORDER BY ts.created_at",
+            [$transactionId]
+        );
+
+        // Get categories for split form
+        $categories = $this->db->query(
+            "SELECT id, name FROM categories WHERE user_id = ? OR user_id IS NULL ORDER BY name",
+            [$userId]
+        );
+
+        echo $this->app->render('transactions/splits', [
+            'transaction' => $transaction,
+            'splits' => $splits,
+            'categories' => $categories
+        ]);
+    }
 }

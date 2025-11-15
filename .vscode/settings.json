@@ -1,0 +1,81 @@
+{
+  "// SAFETY CONFIGURATION - DO NOT MODIFY": "Prevents accidental damage to production sites",
+  
+  "// Auto-save disabled for safety": true,
+  "files.autoSave": "off",
+  "files.autoSaveDelay": 0,
+  
+  "// Extension auto-updates disabled": true,
+  "extensions.autoUpdate": false,
+  "extensions.autoCheckUpdates": false,
+  
+  "// Format on save disabled to prevent breaking changes": true,
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  
+  "// Workspace trust for budget-control only": true,
+  "security.workspace.trust.enabled": true,
+  "security.workspace.trust.startupPrompt": "always",
+  
+  "// File exclusions - prevent access to other sites": true,
+  "files.exclude": {
+    "/var/www/okamih.cz": true,
+    "/var/www/okamih.sk": true,
+    "/var/www/html": true,
+    "/var/www/app.okamih.cz": true,
+    "/etc/**": true,
+    "/opt/**": true,
+    "/root/**": true,
+    "**/node_modules": true,
+    "**/.git": false
+  },
+  
+  "files.watcherExclude": {
+    "/var/www/okamih.cz/**": true,
+    "/var/www/okamih.sk/**": true,
+    "/var/www/html/**": true,
+    "/var/www/app.okamih.cz/**": true
+  },
+  
+  "// Search exclusions - only budget-control files": true,
+  "search.exclude": {
+    "/var/www/okamih.cz": true,
+    "/var/www/okamih.sk": true,
+    "/var/www/html": true,
+    "/var/www/app.okamih.cz": true,
+    "/etc/**": true,
+    "/opt/**": true
+  },
+  
+  "// Git settings": true,
+  "git.enabled": true,
+  "git.autofetch": false,
+  "git.confirmSync": true,
+  
+  "// PHP settings for budget-control": true,
+  "php.validate.enable": true,
+  "php.suggest.basic": true,
+  
+  "// Terminal restrictions": true,
+  "terminal.integrated.cwd": "/var/www/budget-control",
+  "terminal.integrated.inheritEnv": false,
+  
+  "// Disable telemetry": true,
+  "telemetry.telemetryLevel": "off",
+  
+  "// Color theme for budget-control workspace": true,
+  "workbench.colorTheme": "Default Dark+",
+  
+  "// Editor preferences": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "files.trimTrailingWhitespace": false,
+  "files.insertFinalNewline": false,
+  
+  "// Recommended extensions (manual install only)": [
+    "bmewburn.vscode-intelephense-client",
+    "felixfbecker.php-debug"
+  ]
+}

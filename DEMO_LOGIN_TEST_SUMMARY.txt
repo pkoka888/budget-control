@@ -1,0 +1,176 @@
+================================================================================
+BUDGET CONTROL DEMO LOGIN TEST - QUICK SUMMARY
+================================================================================
+
+TEST RESULT: FAILED - CRITICAL BUG IDENTIFIED
+STATUS: Application is NOT OPERATIONAL
+
+================================================================================
+TEST EXECUTION OVERVIEW
+================================================================================
+
+1. Health Endpoint         ✅ PASS - Server and database OK
+2. Login Page Load         ✅ PASS - CSRF token working
+3. Login Form Submission   ❌ FAIL - Fatal PHP error
+4. Dashboard Access        ❌ FAIL - Blocked by error
+5. Demo Data Access        ❌ FAIL - Cannot verify (login blocked)
+
+================================================================================
+CRITICAL ERROR FOUND
+================================================================================
+
+File: /var/www/budget-control/budget-app/src/Middleware/RateLimiter.php
+Line: 149
+
+Error: Call to undefined method BudgetApp\Database::exec()
+
+Stack Trace:
+  RateLimiter::ensureTableExists() -> Line 149
+  RateLimiter::checkLimit() -> Line 74
+  RateLimiter::requireLoginLimit() -> Line 224
+  AuthController::login() -> Line 37
+  [Entry Point] -> Application::run()
+
+================================================================================
+ROOT CAUSE
+================================================================================
+
+ARCHITECTURAL MISMATCH:
+- RateLimiter written to expect raw PDO object (unit tests)
+- Production code passes Database wrapper object (AuthController)
+- 9 code locations use wrong API methods
+
+AFFECTED METHODS:
+1. Line 149, 159 - exec() method doesn't exist
+2. Line 41, 55, 101, 121 - prepare() method doesn't exist
+3. Line 46, 106 - fetchArray(SQLITE3_ASSOC) wrong API
+4. Line 139 - changes() method doesn't exist
+
+WHY TESTS PASS:
+- Unit tests pass raw PDO object (tests/RateLimiterTest.php)
+- Production passes Database wrapper (src/Controllers/AuthController.php)
+- No integration tests caught the mismatch
+
+================================================================================
+IMPACT
+================================================================================
+
+Scope: ALL USERS (demo account + production)
+Severity: CRITICAL
+Functionality Blocked: Login/Authentication
+Application Status: NON-FUNCTIONAL
+
+Every login attempt fails with:
+  HTTP 200 + Fatal Error (not expected 302 redirect)
+
+================================================================================
+RECOMMENDED FIXES
+================================================================================
+
+File to Fix: /var/www/budget-control/budget-app/src/Middleware/RateLimiter.php
+
+Changes Needed (9 locations):
+
+1. exec() calls (lines 149, 159):
+   Replace: $this->db->exec("CREATE TABLE ...")
+   With: $this->db->getPdo()->exec("CREATE TABLE ...")
+
+2. prepare() + fetchArray() (lines 41-46):
+   Replace: $stmt = $this->db->prepare(...); $result->fetchArray(...)
+   With: $this->db->query(...); returns array directly
+
+3. prepare() + execute() (line 55-58):
+   Replace: $stmt->prepare(...); $stmt->execute(...)
+   With: $this->db->execute(...);
+
+4. prepare() (line 101, 121):
+   Replace: $stmt = $this->db->prepare(...)
+   With: Use $this->db->query() or $this->db->execute()
+
+5. changes() (line 139):
+   Replace: return $this->db->changes()
+   With: return $this->db->execute(...)  // execute() returns row count
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+Priority: IMMEDIATE
+1. Create hotfix branch
+2. Rewrite RateLimiter.php to use Database wrapper API
+3. Test login with demo account (demo@budgetcontrol.cz / DemoPassword123!)
+4. Run E2E tests to verify all authentication flows
+5. Deploy hotfix to production
+6. Verify application is operational
+
+================================================================================
+DETAILED TEST REPORT
+================================================================================
+
+Full test report saved to:
+/var/www/budget-control/DEMO_LOGIN_TEST_REPORT.md
+
+Report includes:
+- Complete test execution details
+- Full stack traces and error messages
+- API method mapping for fixes
+- Code examples (broken vs. fixed)
+- Impact assessment
+- Technical specifications
+- 14KB, 501 lines of documentation
+
+================================================================================
+DEMO ACCOUNT CREDENTIALS TESTED
+================================================================================
+
+Email: demo@budgetcontrol.cz
+Password: DemoPassword123!
+CSRF Token: a836e259e3effcd2966a4e3bf98351d2c2c00b68ae1213e285e5f22663cab414
+
+Status: UNABLE TO LOGIN (Error in RateLimiter before credential check)
+
+================================================================================
+SERVER INFRASTRUCTURE STATUS
+================================================================================
+
+Database: OK (SQLite 3.x, 1 user in database, 1.6 MB)
+PHP: OK (Version 8.4.11 with all required extensions)
+Sessions: OK (Writable, using files handler)
+Server: OK (Apache 2.4.65, Debian)
+
+Overall: Infrastructure HEALTHY - Issue is application code only
+
+================================================================================
+TEST METHOD
+================================================================================
+
+Tool: curl with HTTP client
+Approach: Integration testing via REST API
+Test Date: 2025-11-15 02:14:31 UTC
+URL: http://budget.okamih.cz/
+
+Steps:
+1. GET /health.php - Check infrastructure
+2. GET /login - Retrieve login page and CSRF token
+3. POST /login - Submit credentials with CSRF token
+4. GET / - Try to access dashboard with session
+5. Parse responses for errors and status
+
+================================================================================
+TEST REPORT FILES GENERATED
+================================================================================
+
+1. DEMO_LOGIN_TEST_REPORT.md (14 KB, 501 lines)
+   - Comprehensive test report with detailed analysis
+   - Root cause analysis with code examples
+   - API method mapping for fixes
+   - Impact assessment and recommendations
+
+2. DEMO_LOGIN_TEST_SUMMARY.txt (This file)
+   - Quick reference summary
+   - Key findings and critical info
+   - Recommended next steps
+
+Both files saved in: /var/www/budget-control/
+
+================================================================================

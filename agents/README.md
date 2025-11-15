@@ -7,7 +7,7 @@
 
 ## Overview
 
-This directory contains **10 specialized AI agent definitions** designed to work together to complete the Budget Control application. Each agent is an expert in a specific domain and can be invoked by AI coding assistants (Claude Code, Cursor, Windsurf, etc.) to perform specialized tasks.
+This directory contains **11 specialized AI agent definitions** designed to work together to complete the Budget Control application. Each agent is an expert in a specific domain and can be invoked by AI coding assistants (Claude Code, Cursor, Windsurf, etc.) to perform specialized tasks.
 
 ---
 
@@ -32,6 +32,7 @@ This directory contains **10 specialized AI agent definitions** designed to work
 | **DevOps** | `devops.md` | Infrastructure engineer | CI/CD, deployment, monitoring, backups |
 | **LLM Integration** | `llm-integration.md` | AI integration specialist | Connect LLM providers, prompt engineering |
 | **Project Manager** | `project-manager.md` | Coordinator | Multi-agent orchestration, planning |
+| **Debugger** | `debugger.md` | Hotfix specialist | Emergency fixes, root cause analysis, production issues |
 
 ---
 
@@ -194,6 +195,16 @@ See `/PARALLEL_EXECUTION_PLAN.md` for the complete execution strategy.
 - ✅ Ensure quality gates are met
 - ✅ Communicate status to stakeholders
 
+#### Debugger Agent (`debugger.md`)
+- ✅ Emergency hotfixes for production issues
+- ✅ Root cause analysis using systematic methodology
+- ✅ Database API debugging (PDO vs SQLite3)
+- ✅ PHP backend bug fixes
+- ✅ JavaScript frontend debugging
+- ✅ Security vulnerability patching
+- ✅ Multi-agent collaboration for complex issues
+- ✅ Regression test creation after fixes
+
 ---
 
 ## Quick Start Guide
@@ -348,7 +359,7 @@ For questions about agents or coordination:
 
 ---
 
-**Last Updated:** 2025-11-11
+**Last Updated:** 2025-11-15
 **Status:** Ready for use
-**Total Agents:** 10
+**Total Agents:** 11
 **Estimated Project Completion:** 4 weeks with parallel execution

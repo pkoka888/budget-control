@@ -38,13 +38,12 @@ class RateLimiter
         $this->ensureTableExists();
 
         // Count recent attempts
-        $stmt = $this->db->prepare(
+        $row = $this->db->queryOne(
             "SELECT COUNT(*) as count FROM rate_limits
-             WHERE key = ? AND attempted_at > ?"
+             WHERE key = ? AND attempted_at > ?",
+            [$key, $windowStart]
         );
-        $result = $stmt->execute([$key, $windowStart]);
-        $row = $result->fetchArray(SQLITE3_ASSOC);
-        $count = (int) $row['count'];
+        $count = (int) ($row['count'] ?? 0);
 
         // Check if limit exceeded
         if ($count >= $maxAttempts) {
@@ -52,10 +51,10 @@ class RateLimiter
         }
 
         // Log this attempt
-        $stmt = $this->db->prepare(
-            "INSERT INTO rate_limits (key, attempted_at) VALUES (?, ?)"
+        $this->db->execute(
+            "INSERT INTO rate_limits (key, attempted_at) VALUES (?, ?)",
+            [$key, date('Y-m-d H:i:s')]
         );
-        $stmt->execute([$key, date('Y-m-d H:i:s')]);
 
         return true;
     }
@@ -98,13 +97,12 @@ class RateLimiter
     {
         $windowStart = date('Y-m-d H:i:s', time() - $windowSeconds);
 
-        $stmt = $this->db->prepare(
+        $row = $this->db->queryOne(
             "SELECT COUNT(*) as count FROM rate_limits
-             WHERE key = ? AND attempted_at > ?"
+             WHERE key = ? AND attempted_at > ?",
+            [$key, $windowStart]
         );
-        $result = $stmt->execute([$key, $windowStart]);
-        $row = $result->fetchArray(SQLITE3_ASSOC);
-        $count = (int) $row['count'];
+        $count = (int) ($row['count'] ?? 0);
 
         return max(0, $maxAttempts - $count);
     }
@@ -118,8 +116,7 @@ class RateLimiter
      */
     public function reset(string $key): void
     {
-        $stmt = $this->db->prepare("DELETE FROM rate_limits WHERE key = ?");
-        $stmt->execute([$key]);
+        $this->db->execute("DELETE FROM rate_limits WHERE key = ?", [$key]);
     }
 
     /**
@@ -133,10 +130,8 @@ class RateLimiter
     {
         $cutoffTime = date('Y-m-d H:i:s', time() - $olderThanSeconds);
 
-        $stmt = $this->db->prepare("DELETE FROM rate_limits WHERE attempted_at < ?");
-        $stmt->execute([$cutoffTime]);
-
-        return $this->db->changes();
+        // execute() returns the number of affected rows
+        return $this->db->execute("DELETE FROM rate_limits WHERE attempted_at < ?", [$cutoffTime]);
     }
 
     /**
@@ -146,7 +141,7 @@ class RateLimiter
      */
     private function ensureTableExists(): void
     {
-        $this->db->exec("
+        $this->db->getPdo()->exec("
             CREATE TABLE IF NOT EXISTS rate_limits (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 key TEXT NOT NULL,
@@ -156,7 +151,7 @@ class RateLimiter
         ");
 
         // Create index for performance
-        $this->db->exec("
+        $this->db->getPdo()->exec("
             CREATE INDEX IF NOT EXISTS idx_rate_limits_key_time
             ON rate_limits(key, attempted_at)
         ");

@@ -3,6 +3,7 @@ namespace BudgetApp\Services;
 
 use BudgetApp\Database;
 use BudgetApp\Config;
+use BudgetApp\Helpers\FilenameHelper;
 
 /**
  * Receipt OCR Service
@@ -392,15 +393,35 @@ class ReceiptOcrService {
     // Helper methods
 
     private function saveUploadedImage(int $userId, array $file): string {
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = uniqid('receipt_' . $userId . '_') . '.' . $extension;
-        $targetPath = $this->uploadDir . '/' . $filename;
+        // Whitelist allowed image extensions
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
 
-        if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        // Generate secure filename with validation
+        $filename = FilenameHelper::generateUnique(
+            $file['name'],
+            'receipt_' . $userId . '_',
+            $allowedExtensions
+        );
+
+        // Validate upload directory (prevent configuration-based path traversal)
+        $safeUploadDir = FilenameHelper::validateUploadDirectory($this->uploadDir);
+
+        // Construct full path using validated directory
+        $targetPath = $safeUploadDir . '/' . $filename;
+
+        // Verify final path is still within upload directory
+        // (defense in depth - shouldn't be needed if above code is correct)
+        $realTargetPath = dirname($targetPath) . '/' . basename($filename);
+        if (strpos($realTargetPath, $safeUploadDir) !== 0) {
+            throw new \Exception("Invalid upload path detected");
+        }
+
+        // Move uploaded file
+        if (!move_uploaded_file($file['tmp_name'], $realTargetPath)) {
             throw new \Exception("Failed to save uploaded image");
         }
 
-        return $targetPath;
+        return $realTargetPath;
     }
 
     private function createScanRecord(int $userId, string $imagePath, int $imageSize): int {

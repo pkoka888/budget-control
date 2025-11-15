@@ -2,6 +2,7 @@
 namespace BudgetApp\Controllers;
 
 use BudgetApp\Application;
+use BudgetApp\SessionConfig;
 
 class AuthController {
     private Application $app;
@@ -43,7 +44,7 @@ class AuthController {
 
         if ($user && password_verify($password, $user['password_hash'])) {
             // Regenerate session ID to prevent session fixation attacks
-            session_regenerate_id(true);
+            SessionConfig::regenerate();
 
             $_SESSION['user_id'] = $user['id'];
 
@@ -139,7 +140,7 @@ class AuthController {
         ]);
 
         // Regenerate session ID to prevent session fixation attacks
-        session_regenerate_id(true);
+        SessionConfig::regenerate();
 
         $_SESSION['user_id'] = $userId;
 
@@ -158,7 +159,7 @@ class AuthController {
     }
 
     public function logout(): void {
-        session_destroy();
+        SessionConfig::destroy();
         header('Location: /login');
         exit;
     }
@@ -393,7 +394,7 @@ class AuthController {
         ], "id = ?", [$reset['id']]);
 
         // Regenerate session ID to prevent session fixation attacks
-        session_regenerate_id(true);
+        SessionConfig::regenerate();
 
         // Log user in automatically
         $_SESSION['user_id'] = $reset['user_id'];

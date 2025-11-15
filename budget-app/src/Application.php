@@ -355,7 +355,7 @@ class Application {
     }
 
     public function run(): void {
-        session_start();
+        // Session is already started in index.php with SessionConfig::start()
 
         try {
             $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';

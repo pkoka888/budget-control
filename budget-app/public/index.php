@@ -6,9 +6,6 @@
  * All HTTP requests are routed through this file.
  */
 
-// Start session
-session_start();
-
 // Set timezone
 date_default_timezone_set('Europe/Prague');
 
@@ -42,6 +39,10 @@ if (file_exists($autoloadPath)) {
         }
     });
 }
+
+// Configure and start secure session
+use BudgetApp\SessionConfig;
+SessionConfig::start();
 
 // Check if database exists
 $dbPath = BASE_PATH . '/database/budget.db';

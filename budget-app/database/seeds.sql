@@ -7,7 +7,7 @@
 
 -- Demo User
 INSERT INTO users (id, name, email, password_hash, currency, timezone, email_verified, created_at) VALUES
-(1, 'Demo Uživatel', 'demo@budgetcontrol.cz', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'CZK', 'Europe/Prague', 1, datetime('now', '-90 days'));
+(1, 'Demo Uživatel', 'demo@budgetcontrol.cz', '$2y$12$GmXcLYLJ7PiSymxtarC7cempq37vc.uXiLt13.lqxv5XeyKt0heyO', 'CZK', 'Europe/Prague', 1, datetime('now', '-90 days'));
 -- Password: DemoPassword123!
 
 -- Demo Household

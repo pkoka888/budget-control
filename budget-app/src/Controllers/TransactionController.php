@@ -24,11 +24,11 @@ class TransactionController extends BaseController {
 
         // Build query
         $query = "SELECT t.*, c.name as category_name, a.name as account_name,
-                         CASE WHEN ts.parent_transaction_id IS NOT NULL THEN 1 ELSE 0 END as has_splits
+                         CASE WHEN ts.transaction_id IS NOT NULL THEN 1 ELSE 0 END as has_splits
                   FROM transactions t
                   LEFT JOIN categories c ON t.category_id = c.id
                   JOIN accounts a ON t.account_id = a.id
-                  LEFT JOIN transaction_splits ts ON t.id = ts.parent_transaction_id
+                  LEFT JOIN transaction_splits ts ON t.id = ts.transaction_id
                   WHERE a.user_id = ?";
         $queryParams = [$userId];
 
@@ -84,7 +84,7 @@ class TransactionController extends BaseController {
         $countQuery = "SELECT COUNT(DISTINCT t.id) as count FROM transactions t
                        LEFT JOIN categories c ON t.category_id = c.id
                        JOIN accounts a ON t.account_id = a.id
-                       LEFT JOIN transaction_splits ts ON t.id = ts.parent_transaction_id
+                       LEFT JOIN transaction_splits ts ON t.id = ts.transaction_id
                        WHERE a.user_id = ?";
         $countParams = [$userId];
 

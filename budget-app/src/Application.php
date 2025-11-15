@@ -74,7 +74,9 @@ class Application {
 
         // Budget routes
         $this->router->get('/budgets', 'BudgetController@list');
+        $this->router->get('/budgets/create', 'BudgetController@createForm');
         $this->router->post('/budgets', 'BudgetController@create');
+        $this->router->get('/budgets/:id/edit', 'BudgetController@editForm');
         $this->router->post('/budgets/:id/update', 'BudgetController@update');
         $this->router->post('/budgets/:id/delete', 'BudgetController@delete');
         // Budget alert routes

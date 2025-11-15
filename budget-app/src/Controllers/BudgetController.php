@@ -38,6 +38,45 @@ class BudgetController extends BaseController {
         ]);
     }
 
+    public function createForm(array $params = []): void {
+        $userId = $this->getUserId();
+
+        $categories = $this->db->query(
+            "SELECT id, name FROM categories WHERE user_id = ? OR user_id IS NULL ORDER BY name",
+            [$userId]
+        );
+
+        echo $this->app->render('budgets/create', [
+            'categories' => $categories
+        ]);
+    }
+
+    public function editForm(array $params = []): void {
+        $userId = $this->getUserId();
+        $budgetId = (int)$params['id'];
+
+        $budget = $this->db->queryOne(
+            "SELECT * FROM budgets WHERE id = ? AND user_id = ?",
+            [$budgetId, $userId]
+        );
+
+        if (!$budget) {
+            http_response_code(404);
+            echo $this->app->render('404', ['message' => 'Budget not found']);
+            return;
+        }
+
+        $categories = $this->db->query(
+            "SELECT id, name FROM categories WHERE user_id = ? OR user_id IS NULL ORDER BY name",
+            [$userId]
+        );
+
+        echo $this->app->render('budgets/edit', [
+            'budget' => $budget,
+            'categories' => $categories
+        ]);
+    }
+
     public function create(array $params = []): void {
         $userId = $this->getUserId();
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controllers;
+namespace BudgetApp\Controllers;
 
-use App\Services\HouseholdService;
-use App\Services\PermissionService;
-use App\Services\InvitationService;
-use PDO;
+use BudgetApp\Application;
+use BudgetApp\Services\HouseholdService;
+use BudgetApp\Services\PermissionService;
+use BudgetApp\Services\InvitationService;
 
 /**
  * Household Controller
@@ -18,9 +18,10 @@ class HouseholdController extends BaseController
     private PermissionService $permissionService;
     private InvitationService $invitationService;
 
-    public function __construct(PDO $db)
+    public function __construct(Application $app)
     {
-        parent::__construct($db);
+        parent::__construct($app);
+        $db = $app->getDatabase()->getPdo();
         $this->householdService = new HouseholdService($db);
         $this->permissionService = new PermissionService($db);
         $this->invitationService = new InvitationService($db);

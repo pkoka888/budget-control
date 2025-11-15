@@ -1,0 +1,44 @@
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+budget-app/database/*.db
+budget-app/database/test-write.txt
+
+# Node modules
+node_modules/
+npm-debug.log*
+
+# Test results
+test-results/
+playwright-report/
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.tar
+*.tar.gz
+*.zip
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

@@ -197,6 +197,23 @@ class ValidationHelper {
     }
 
     /**
+     * Escape email content to prevent XSS
+     * Suitable for both plain text and HTML email rendering
+     *
+     * @param string|null $value Content to escape
+     * @return string Escaped content safe for email
+     */
+    public static function escapeEmail(?string $value): string {
+        if ($value === null) {
+            return '';
+        }
+
+        // Escape HTML special characters to prevent XSS
+        // This protects against malicious scripts if email is rendered as HTML
+        return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
      * Validate array of rules
      */
     public static function validate(array $data, array $rules): array {

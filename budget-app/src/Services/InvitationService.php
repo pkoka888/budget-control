@@ -285,10 +285,17 @@ class InvitationService
 
         $acceptUrl = $_ENV['APP_URL'] . "/invitation/accept?token={$token}";
 
-        $body = "{$inviter['username']} has invited you to join the household '{$household['name']}' as a {$role}.\n\n";
+        // Escape user-controlled data to prevent XSS
+        // Note: Using fully qualified path since this is App\Services namespace
+        $safeInviterName = htmlspecialchars($inviter['username'] ?? 'Someone', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $safeHouseholdName = htmlspecialchars($household['name'] ?? 'a household', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $safeRole = htmlspecialchars($role, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $safeMessage = $message ? htmlspecialchars($message, ENT_QUOTES | ENT_HTML5, 'UTF-8') : null;
 
-        if ($message) {
-            $body .= "Message: {$message}\n\n";
+        $body = "{$safeInviterName} has invited you to join the household '{$safeHouseholdName}' as a {$safeRole}.\n\n";
+
+        if ($safeMessage) {
+            $body .= "Message: {$safeMessage}\n\n";
         }
 
         $body .= "Click the link below to accept:\n{$acceptUrl}\n\n";
@@ -297,7 +304,7 @@ class InvitationService
         try {
             $this->emailService->send(
                 $inviteeEmail,
-                "You've been invited to join {$household['name']}",
+                "You've been invited to join {$safeHouseholdName}",
                 $body
             );
         } catch (\Exception $e) {

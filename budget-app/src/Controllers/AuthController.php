@@ -42,6 +42,9 @@ class AuthController {
         );
 
         if ($user && password_verify($password, $user['password_hash'])) {
+            // Regenerate session ID to prevent session fixation attacks
+            session_regenerate_id(true);
+
             $_SESSION['user_id'] = $user['id'];
 
             // Reset rate limit on successful login
@@ -90,6 +93,32 @@ class AuthController {
             return;
         }
 
+        // Strong password validation
+        if (strlen($password) < 12) {
+            echo $this->app->render('auth/register', ['error' => 'Heslo musí mít alespoň 12 znaků']);
+            return;
+        }
+
+        if (!preg_match('/[A-Z]/', $password)) {
+            echo $this->app->render('auth/register', ['error' => 'Heslo musí obsahovat alespoň jedno velké písmeno']);
+            return;
+        }
+
+        if (!preg_match('/[a-z]/', $password)) {
+            echo $this->app->render('auth/register', ['error' => 'Heslo musí obsahovat alespoň jedno malé písmeno']);
+            return;
+        }
+
+        if (!preg_match('/[0-9]/', $password)) {
+            echo $this->app->render('auth/register', ['error' => 'Heslo musí obsahovat alespoň jedno číslo']);
+            return;
+        }
+
+        if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+            echo $this->app->render('auth/register', ['error' => 'Heslo musí obsahovat alespoň jeden speciální znak']);
+            return;
+        }
+
         // Check if email already exists
         $existing = $this->db->queryOne("SELECT id FROM users WHERE email = ?", [$email]);
         if ($existing) {
@@ -108,6 +137,9 @@ class AuthController {
             'email_verified' => 0,
             'created_at' => date('Y-m-d H:i:s')
         ]);
+
+        // Regenerate session ID to prevent session fixation attacks
+        session_regenerate_id(true);
 
         $_SESSION['user_id'] = $userId;
 
@@ -195,7 +227,11 @@ class AuthController {
             // Send email (using PHP mail function)
             $resetUrl = "http://" . $_SERVER['HTTP_HOST'] . "/reset-password?token=$token";
             $subject = "Obnovení hesla - Budget Control";
-            $message = "Dobrý den {$user['name']},\n\n";
+
+            // Escape user-controlled data to prevent XSS
+            $safeName = \BudgetApp\Helpers\ValidationHelper::escapeEmail($user['name']);
+
+            $message = "Dobrý den {$safeName},\n\n";
             $message .= "Obdrželi jste tento e-mail, protože byla požádána obnova hesla pro váš účet.\n\n";
             $message .= "Klikněte na následující odkaz pro obnovení hesla:\n";
             $message .= "$resetUrl\n\n";
@@ -287,9 +323,42 @@ class AuthController {
             return;
         }
 
-        if (strlen($password) < 8) {
+        // Strong password validation (same as registration)
+        if (strlen($password) < 12) {
             echo $this->app->render('auth/reset-password', [
-                'error' => 'Heslo musí mít alespoň 8 znaků',
+                'error' => 'Heslo musí mít alespoň 12 znaků',
+                'token' => $token
+            ]);
+            return;
+        }
+
+        if (!preg_match('/[A-Z]/', $password)) {
+            echo $this->app->render('auth/reset-password', [
+                'error' => 'Heslo musí obsahovat alespoň jedno velké písmeno',
+                'token' => $token
+            ]);
+            return;
+        }
+
+        if (!preg_match('/[a-z]/', $password)) {
+            echo $this->app->render('auth/reset-password', [
+                'error' => 'Heslo musí obsahovat alespoň jedno malé písmeno',
+                'token' => $token
+            ]);
+            return;
+        }
+
+        if (!preg_match('/[0-9]/', $password)) {
+            echo $this->app->render('auth/reset-password', [
+                'error' => 'Heslo musí obsahovat alespoň jedno číslo',
+                'token' => $token
+            ]);
+            return;
+        }
+
+        if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+            echo $this->app->render('auth/reset-password', [
+                'error' => 'Heslo musí obsahovat alespoň jeden speciální znak',
                 'token' => $token
             ]);
             return;
@@ -322,6 +391,9 @@ class AuthController {
         $this->db->update('password_resets', [
             'used_at' => date('Y-m-d H:i:s')
         ], "id = ?", [$reset['id']]);
+
+        // Regenerate session ID to prevent session fixation attacks
+        session_regenerate_id(true);
 
         // Log user in automatically
         $_SESSION['user_id'] = $reset['user_id'];

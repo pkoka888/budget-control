@@ -265,6 +265,9 @@ class EmailVerificationService {
      * Get HTML email template
      */
     private function getEmailTemplate(string $name, string $verificationUrl): string {
+        // Escape user-controlled data to prevent XSS
+        $safeName = \BudgetApp\Helpers\ValidationHelper::escapeEmail($name);
+
         return <<<HTML
 <!DOCTYPE html>
 <html lang="cs">
@@ -337,7 +340,7 @@ class EmailVerificationService {
         </div>
 
         <div class="content">
-            <h2>Vítejte, {$name}!</h2>
+            <h2>Vítejte, {$safeName}!</h2>
             <p>Děkujeme za registraci v aplikaci Budget Control. Pro dokončení registrace prosím ověřte svou e-mailovou adresu kliknutím na tlačítko níže:</p>
 
             <div style="text-align: center;">
@@ -372,10 +375,13 @@ HTML;
      * Get plain text email template
      */
     private function getEmailTextTemplate(string $name, string $verificationUrl): string {
+        // Escape user-controlled data to prevent XSS
+        $safeName = \BudgetApp\Helpers\ValidationHelper::escapeEmail($name);
+
         return <<<TEXT
 Budget Control - Ověření e-mailu
 
-Vítejte, {$name}!
+Vítejte, {$safeName}!
 
 Děkujeme za registraci v aplikaci Budget Control. Pro dokončení registrace prosím ověřte svou e-mailovou adresu kliknutím na odkaz níže:
 

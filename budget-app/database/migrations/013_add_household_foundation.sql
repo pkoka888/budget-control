@@ -130,7 +130,7 @@ CREATE INDEX idx_household_settings_household ON household_settings(household_id
 -- Create single-member household for each existing user
 INSERT INTO households (name, created_by, currency)
 SELECT
-    u.username || '''s Household',
+    u.name || '''s Household',
     u.id,
     'CZK'
 FROM users u

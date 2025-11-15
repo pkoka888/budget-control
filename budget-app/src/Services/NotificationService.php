@@ -244,13 +244,19 @@ class NotificationService
             return;
         }
 
-        $body = $message;
-        if ($actionUrl) {
-            $body .= "\n\nView details: " . $actionUrl;
+        // Escape user-controlled data to prevent XSS
+        // Note: Using inline escaping since this is App\Services namespace
+        $safeTitle = htmlspecialchars($title, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $safeMessage = htmlspecialchars($message, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $safeActionUrl = $actionUrl ? htmlspecialchars($actionUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8') : null;
+
+        $body = $safeMessage;
+        if ($safeActionUrl) {
+            $body .= "\n\nView details: " . $safeActionUrl;
         }
 
         try {
-            $this->emailService->send($user['email'], $title, $body);
+            $this->emailService->send($user['email'], $safeTitle, $body);
         } catch (\Exception $e) {
             // Log error but don't fail
             error_log("Failed to send notification email: " . $e->getMessage());

@@ -108,4 +108,36 @@ abstract class BaseController {
         }
         return null;
     }
+
+    /**
+     * Sanitize filename to prevent path traversal and XSS attacks
+     *
+     * @param string $filename Original filename
+     * @return string Sanitized filename
+     */
+    protected function sanitizeFilename(string $filename): string {
+        // Remove any path information
+        $filename = basename($filename);
+
+        // Remove directory traversal attempts
+        $filename = str_replace(['../', '..\\', './'], '', $filename);
+
+        // Remove special characters except dots, hyphens, underscores
+        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
+
+        // Remove multiple consecutive underscores
+        $filename = preg_replace('/_+/', '_', $filename);
+
+        // Limit length
+        if (strlen($filename) > 255) {
+            $filename = substr($filename, 0, 255);
+        }
+
+        // Ensure it's not empty after sanitization
+        if (empty($filename)) {
+            $filename = 'upload_' . time() . '.csv';
+        }
+
+        return $filename;
+    }
 }

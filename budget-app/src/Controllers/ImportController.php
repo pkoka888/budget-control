@@ -48,6 +48,16 @@ class ImportController extends BaseController {
             $this->json(['error' => 'Neplatný typ souboru'], 400);
         }
 
+        // Additional security: Check file extension
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($fileExtension, ['csv', 'txt'])) {
+            $this->json(['error' => 'Povolené jsou pouze CSV a TXT soubory'], 400);
+        }
+
+        // Sanitize filename to prevent path traversal and XSS
+        $originalFilename = $file['name'];
+        $safeFilename = $this->sanitizeFilename($originalFilename);
+
         // Verify account ownership
         $account = $this->db->queryOne(
             "SELECT id FROM accounts WHERE id = ? AND user_id = ?",
@@ -67,7 +77,7 @@ class ImportController extends BaseController {
             $_SESSION['import_data'] = [
                 'transactions' => $transactions,
                 'account_id' => $accountId,
-                'filename' => $file['name']
+                'filename' => $safeFilename // Use sanitized filename
             ];
 
             $this->json([
